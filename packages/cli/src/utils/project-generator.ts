@@ -85,9 +85,9 @@ export class ProjectGenerator {
         'start:prod': 'npm run build && npm start',
         'lint': 'eslint \\"{src,apps,libs,test}/**/*.ts\\" --fix',
         'format': 'prettier --write \\"src/**/*.ts\\" \\"test/**/*.ts\\"',
-        'test': 'ts-node src/app.controller.spec.ts',
+        'test': 'for file in $(find src -name \"*.spec.ts\"); do echo \"\\nRunning $file...\"; ts-node \"$file\" || exit 1; done',
         'test:watch': 'nodemon --exec \\"npm run test\\"',
-        'test:e2e': 'ts-node test/app.e2e-spec.ts'
+        'test:e2e': 'for file in $(find test -name \"*.e2e-spec.ts\" 2>/dev/null || echo "test/app.e2e-spec.ts"); do echo \"\\nRunning $file...\"; ts-node \"$file\" || exit 1; done'
       },
       dependencies: {
         'han-prev-core': '^1.0.12',
