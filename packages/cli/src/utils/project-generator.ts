@@ -59,6 +59,7 @@ export class ProjectGenerator {
     if (!fastMode) {
       console.log(chalk.blue('🧪 Setting up Han Test framework...'));
       await this.generateTestStructure(projectPath);
+      await this.generateTestRunner(projectPath);
       console.log(chalk.green('✅ Han Test framework configured'));
     }
 
@@ -85,9 +86,9 @@ export class ProjectGenerator {
         'start:prod': 'npm run build && npm start',
         'lint': 'eslint \\"{src,apps,libs,test}/**/*.ts\\" --fix',
         'format': 'prettier --write \\"src/**/*.ts\\" \\"test/**/*.ts\\"',
-        'test': 'for file in $(find src -name \"*.spec.ts\"); do echo \"\\nRunning $file...\"; ts-node \"$file\" || exit 1; done',
+        'test': 'ts-node scripts/test-runner.ts',
         'test:watch': 'nodemon --exec \\"npm run test\\"',
-        'test:e2e': 'for file in $(find test -name \"*.e2e-spec.ts\" 2>/dev/null || echo "test/app.e2e-spec.ts"); do echo \"\\nRunning $file...\"; ts-node \"$file\" || exit 1; done'
+        'test:e2e': 'ts-node scripts/test-runner.ts --e2e'
       },
       dependencies: {
         'han-prev-core': '^1.0.12',
@@ -97,7 +98,8 @@ export class ProjectGenerator {
       devDependencies: fastMode ? {
         '@types/node': '^20.10.0',
         'typescript': '^5.3.0',
-        'han-prev-testing': '^1.0.0'
+        'han-prev-testing': '^1.0.0',
+        'glob': '^10.3.0'
       } : {
         '@types/node': '^20.10.0',
         '@typescript-eslint/eslint-plugin': '^6.0.0',
@@ -105,6 +107,7 @@ export class ProjectGenerator {
         'eslint': '^8.42.0',
         'eslint-config-prettier': '^9.0.0',
         'eslint-plugin-prettier': '^5.0.0',
+        'glob': '^10.3.0',
         'han-prev-testing': '^1.0.0',
         'nodemon': '^3.0.0',
         'prettier': '^3.0.0',
@@ -740,5 +743,88 @@ if (require.main === module) {
 
     // No external testing dependencies required - Han Framework manages everything internally
     console.log('✨ Generated pure Han Framework test structure - zero external dependencies');
+  }
+
+  private async generateTestRunner(projectPath: string) {
+    const scriptsPath = path.join(projectPath, 'scripts');
+    await fs.ensureDir(scriptsPath);
+
+    const testRunner = `#!/usr/bin/env ts-node
+import { execSync } from 'child_process';
+import * as fs from 'fs';
+import * as path from 'path';
+import { glob } from 'glob';
+
+const isE2E = process.argv.includes('--e2e');
+const pattern = isE2E ? 'test/**/*.e2e-spec.ts' : 'src/**/*.spec.ts';
+
+console.log(\`\\n🧪 Running \${isE2E ? 'E2E' : 'unit'} tests...\\n\`);
+
+const startTime = Date.now();
+let passedCount = 0;
+let failedCount = 0;
+const failedTests: string[] = [];
+
+// Find all test files
+const testFiles = glob.sync(pattern, {
+  cwd: process.cwd(),
+  absolute: true
+});
+
+if (testFiles.length === 0) {
+  console.log('⚠️  No test files found matching pattern:', pattern);
+  process.exit(0);
+}
+
+console.log(\`Found \${testFiles.length} test file(s)\\n\`);
+
+// Run each test file
+for (const testFile of testFiles) {
+  const relativePath = path.relative(process.cwd(), testFile);
+
+  try {
+    // Capture output to suppress individual test summaries
+    execSync(\`npx ts-node "\${testFile}"\`, {
+      stdio: 'pipe',
+      encoding: 'utf-8'
+    });
+
+    console.log(\`✅ \${relativePath}\`);
+    passedCount++;
+  } catch (error: any) {
+    console.log(\`❌ \${relativePath}\`);
+    if (error.stdout) {
+      console.log(error.stdout.toString());
+    }
+    if (error.stderr) {
+      console.error(error.stderr.toString());
+    }
+    failedCount++;
+    failedTests.push(relativePath);
+  }
+}
+
+const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+
+// Print summary
+console.log('\\n' + '═'.repeat(50));
+console.log(\`\\n📊 Test Summary\\n\`);
+console.log(\`  Total:  \${testFiles.length}\`);
+console.log(\`  ✅ Passed: \${passedCount}\`);
+console.log(\`  ❌ Failed: \${failedCount}\`);
+console.log(\`  ⏱️  Duration: \${duration}s\\n\`);
+
+if (failedCount > 0) {
+  console.log('Failed tests:');
+  failedTests.forEach(test => console.log(\`  - \${test}\`));
+  console.log('');
+  process.exit(1);
+} else {
+  console.log('🎉 All tests passed!\\n');
+  process.exit(0);
+}
+`;
+
+    await fs.writeFile(path.join(scriptsPath, 'test-runner.ts'), testRunner);
   }
 }
