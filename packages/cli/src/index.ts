@@ -5,7 +5,6 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import { NewCommand } from './commands/new.command';
 import { GenerateCommand } from './commands/generate.command';
-import { ResourceCommand } from './commands/resource.command';
 import { BuildCommand } from './commands/build.command';
 import { StartCommand } from './commands/start.command';
 import { InfoCommand } from './commands/info.command';
@@ -53,21 +52,6 @@ program
   .option('--no-spec', 'Do not generate spec files')
   .action((schematic, name, options) => {
     new GenerateCommand().execute(schematic, name, options);
-  });
-
-program
-  .command('resource <name>')
-  .alias('res')
-  .description('Generate a complete resource (module, controller, service, and tests)')
-  .option('-d, --dry-run', 'Report actions without writing files')
-  .option('--no-spec', 'Skip generating test files')
-  .option('--crud', 'Generate CRUD operations', false)
-  .action((name, options) => {
-    new ResourceCommand().execute(name, {
-      dryRun: options.dryRun || false,
-      skipTests: !options.spec,
-      crud: options.crud || false
-    });
   });
 
 program

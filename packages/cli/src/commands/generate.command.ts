@@ -20,7 +20,8 @@ export class GenerateCommand {
     'guard', 'g',
     'decorator', 'd',
     'interface', 'if',
-    'class', 'cl'
+    'class', 'cl',
+    'resource', 'res'
   ];
 
   async execute(schematic: string, name: string, options: GenerateCommandOptions) {
@@ -86,7 +87,8 @@ export class GenerateCommand {
       'g': 'guard',
       'd': 'decorator',
       'if': 'interface',
-      'cl': 'class'
+      'cl': 'class',
+      'res': 'resource'
     };
 
     return (schematicMap as any)[schematic] || schematic;
@@ -128,6 +130,7 @@ export class GenerateCommand {
     console.log(chalk.gray('  decorator (d)     - Generate a decorator'));
     console.log(chalk.gray('  interface (if)    - Generate an interface'));
     console.log(chalk.gray('  class (cl)        - Generate a class'));
+    console.log(chalk.gray('  resource (res)    - Generate a complete resource'));
     console.log(chalk.white('\nExample: han g controller user'));
   }
 }
