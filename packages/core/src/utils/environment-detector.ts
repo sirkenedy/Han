@@ -62,12 +62,12 @@ export class EnvironmentDetector {
   }
 
   private static getDefaultHost(isContainer: boolean, isProduction: boolean): string {
-    // Container or production environments bind to all interfaces
+    // In containers or production, bind to all interfaces (0.0.0.0)
     if (isContainer || isProduction) {
       return '0.0.0.0';
     }
 
-    // Development defaults to localhost
+    // In development, bind to localhost (IPv6 preferred, falls back to IPv4)
     return 'localhost';
   }
 
@@ -115,11 +115,10 @@ export class EnvironmentDetector {
   static getDisplayUrl(host: string, port: number, https = false): string {
     const protocol = https ? 'https' : 'http';
 
-    // If host is 0.0.0.0, show the first available network interface or localhost
+    // If host is 0.0.0.0, always return localhost for client connections
+    // The server binds to all interfaces, but clients should connect via localhost
     if (host === '0.0.0.0') {
-      const networkAddresses = this.getNetworkInterfaces();
-      const displayHost = networkAddresses.length > 0 ? networkAddresses[0] : 'localhost';
-      return `${protocol}://${displayHost}:${port}`;
+      return `${protocol}://localhost:${port}`;
     }
 
     return `${protocol}://${host}:${port}`;

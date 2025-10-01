@@ -1,0 +1,56 @@
+{
+  "name": "han-prev-core",
+  "version": "1.0.12",
+  "description": "Core framework for Han - A powerful Node.js framework inspired by NestJS",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "han",
+    "framework",
+    "nodejs",
+    "typescript",
+    "nestjs-inspired"
+  ],
+  "author": "Han Framework Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/han-framework.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://han-framework.dev",
+  "bugs": {
+    "url": "https://github.com/your-org/han-framework/issues"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "han-prev-common": "^1.0.0",
+    "reflect-metadata": "^0.1.13",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/uuid": "^9.0.0",
+    "typescript": "^5.0.0",
+    "rimraf": "^5.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^4.8.0 || ^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

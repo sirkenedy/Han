@@ -1,4 +1,4 @@
-import { ILogger } from '@/interfaces';
+import { ILogger } from '../interfaces';
 
 export class Logger implements ILogger {
   private static formatMessage(level: string, message: string): string {

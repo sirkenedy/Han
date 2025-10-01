@@ -1,6 +1,6 @@
 import { Express } from 'express';
 import { RouterFactory } from './router.factory';
-import { container } from '@/container/container';
+import { container } from '../container/container';
 
 export class AppFactory {
   static registerControllers(app: Express, controllers: any[]): void {

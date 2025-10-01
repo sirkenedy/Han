@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { MetadataStorage, METADATA_KEYS, ModuleMetadata } from '@/decorators';
-import { Logger } from '@/utils';
+import { MetadataStorage, METADATA_KEYS, ModuleMetadata } from '../decorators';
+import { Logger } from '../utils';
 
 interface Provider {
   provide: string;

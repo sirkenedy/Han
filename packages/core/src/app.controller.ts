@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param } from '@/decorators';
+import { Controller, Get, Post, Body, Param } from './decorators';
 import { AppService, User } from './app.service';
 
 interface CreateUserDto {

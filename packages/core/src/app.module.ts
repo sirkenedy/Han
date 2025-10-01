@@ -1,4 +1,4 @@
-import { Module } from '@/decorators';
+import { Module } from './decorators';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 

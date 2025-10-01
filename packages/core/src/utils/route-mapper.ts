@@ -1,4 +1,4 @@
-import { MetadataStorage, METADATA_KEYS, RouteMetadata, ControllerMetadata } from '@/decorators';
+import { MetadataStorage, METADATA_KEYS, RouteMetadata, ControllerMetadata } from '../decorators';
 
 export interface MappedRoute {
   method: string;

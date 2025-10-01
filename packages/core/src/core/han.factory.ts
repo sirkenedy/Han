@@ -1,12 +1,18 @@
 import 'reflect-metadata';
-import express, { Express } from 'express';
-import cors, { CorsOptions } from 'cors';
-import helmet, { HelmetOptions } from 'helmet';
-import { container } from '@/container/container';
+import * as express from 'express';
+import { Express } from 'express';
+import { container } from '../container/container';
 import { AppFactory } from './app.factory';
-import { RouteMapper, EnvironmentDetector } from '@/utils';
-import { errorHandler } from '@/middleware/error.middleware';
-import { HanInterceptor, InterceptorConstructor, InterceptorContext, InterceptorResponse } from '@/interfaces/interceptor.interface';
+import { RouteMapper, EnvironmentDetector } from '../utils';
+import { errorHandler } from '../middleware/error.middleware';
+import { HanInterceptor, InterceptorConstructor, InterceptorContext, InterceptorResponse } from '../interfaces/interceptor.interface';
+
+// Import types separately and use require for CommonJS modules
+import type { CorsOptions } from 'cors';
+import type { HelmetOptions } from 'helmet';
+
+const cors: (options?: CorsOptions) => any = require('cors');
+const helmet: (options?: HelmetOptions) => any = require('helmet');
 
 
 export interface HanApplicationOptions {
@@ -108,12 +114,15 @@ export class HanFactory {
       this.bootstrapModule()
     ]);
 
-    // Setup routes after dependencies are resolved
+    // CRITICAL: Setup optional middleware (CORS, Helmet) BEFORE routes
+    // Express middleware order matters - middleware must come before routes
+    this.setupOptionalMiddleware();
+
+    // Setup routes after dependencies are resolved and middleware is configured
     this.setupRoutes();
     this.setupGlobalPrefix(); // Move global prefix setup after routes
 
-    // Optional middleware setup after critical path
-    this.setupOptionalMiddleware();
+    // Error handling must be last to catch all errors
     this.setupErrorHandling();
 
     // Automatically setup shutdown hooks if enabled
@@ -371,14 +380,10 @@ export class HanFactory {
           address = `[${address}]`;
         }
 
-        // If bound to 0.0.0.0, show the actual network interface
+        // If bound to 0.0.0.0 or ::, return localhost for client connections
+        // The server binds to all interfaces, but clients should connect via localhost
         if (address === '0.0.0.0' || address === '::') {
-          const networkInterfaces = EnvironmentDetector.getNetworkInterfaces();
-          if (networkInterfaces.length > 0) {
-            address = networkInterfaces[0]; // Use first available network interface
-          } else {
-            address = 'localhost';
-          }
+          address = 'localhost';
         }
 
         const protocol = 'http'; // TODO: detect HTTPS if needed

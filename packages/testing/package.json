@@ -1,0 +1,54 @@
+{
+  "name": "han-prev-testing",
+  "version": "1.0.12",
+  "description": "Testing framework for Han Framework with DI support",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "han",
+    "framework",
+    "testing",
+    "test",
+    "di",
+    "dependency-injection"
+  ],
+  "author": "Han Framework Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/han-framework.git",
+    "directory": "packages/testing"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "han-prev-core": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "han-prev-core": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "rimraf": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

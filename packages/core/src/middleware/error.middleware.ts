@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { Logger } from '@/utils';
-import { HTTP_STATUS } from '@/shared';
+import { Logger } from '../utils';
+import { HTTP_STATUS } from '../shared';
 
 export const errorHandler = (
   error: Error,

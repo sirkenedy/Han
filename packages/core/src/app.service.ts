@@ -1,4 +1,4 @@
-import { Injectable } from '@/decorators';
+import { Injectable } from './decorators';
 
 export interface User {
   id: number;
