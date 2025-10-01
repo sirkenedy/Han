@@ -1,6 +1,6 @@
 {
   "name": "han-prev-testing",
-  "version": "1.0.12",
+  "version": "1.0.15",
   "description": "Testing framework for Han Framework with DI support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,7 +36,7 @@
     "README.md"
   ],
   "peerDependencies": {
-    "han-prev-core": "^1.0.0"
+    "han-prev-core": "^1.0.13"
   },
   "peerDependenciesMeta": {
     "han-prev-core": {

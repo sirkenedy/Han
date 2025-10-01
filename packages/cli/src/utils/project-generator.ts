@@ -91,14 +91,14 @@ export class ProjectGenerator {
         'test:e2e': 'ts-node scripts/test-runner.ts --e2e'
       },
       dependencies: {
-        'han-prev-core': '^1.0.12',
-        'han-prev-common': '^1.0.0',
+        'han-prev-core': '^1.0.15',
+        'han-prev-common': '^1.0.1',
         'reflect-metadata': '^0.1.13'
       },
       devDependencies: fastMode ? {
         '@types/node': '^20.10.0',
         'typescript': '^5.3.0',
-        'han-prev-testing': '^1.0.0',
+        'han-prev-testing': '^1.0.15',
         'glob': '^10.3.0'
       } : {
         '@types/node': '^20.10.0',
@@ -108,7 +108,7 @@ export class ProjectGenerator {
         'eslint-config-prettier': '^9.0.0',
         'eslint-plugin-prettier': '^5.0.0',
         'glob': '^10.3.0',
-        'han-prev-testing': '^1.0.0',
+        'han-prev-testing': '^1.0.15',
         'nodemon': '^3.0.0',
         'prettier': '^3.0.0',
         'rimraf': '^5.0.0',
@@ -540,7 +540,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
   suite, test, expect, beforeAll, afterAll, beforeEach,
-  TestModule, runTests
+  TestModule
 } from 'han-prev-testing';
 
 let testModule: TestModule;
@@ -618,11 +618,6 @@ suite('AppController', () => {
     });
   });
 });
-
-// 🚀 Run unit tests if this file is executed directly
-if (require.main === module) {
-  runTests();
-}
 `;
 
     await fs.writeFile(path.join(projectPath, 'src/app.controller.spec.ts'), appControllerSpec);
@@ -632,7 +627,7 @@ if (require.main === module) {
 import { AppModule } from './../src/app.module';
 import {
   suite, test, expect, beforeAll, afterAll,
-  TestModule, HttpClient, runTests
+  TestModule, HttpClient
 } from 'han-prev-testing';
 
 // Type definitions for API responses
@@ -732,11 +727,6 @@ suite('AppController (e2e)', () => {
     });
   });
 });
-
-// 🚀 Run E2E tests if this file is executed directly
-if (require.main === module) {
-  runTests();
-}
 `;
 
     await fs.writeFile(path.join(testPath, 'app.e2e-spec.ts'), e2eTest);

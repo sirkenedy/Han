@@ -490,187 +490,180 @@ export class ${className}Service {
     // Generate test files if spec option is true
     if (options.spec) {
       const controllerSpecPath = path.join(process.cwd(), 'src', `${fileName}`, `${fileName}.controller.spec.ts`);
-      const controllerSpecContent = `import { ${className}Controller } from './${fileName}.controller';
+      const controllerSpecContent = `// 🧪 Han Framework Unit Testing with DI
+import { ${className}Controller } from './${fileName}.controller';
 import { ${className}Service } from './${fileName}.service';
+import {
+  suite, test, expect, beforeEach
+} from 'han-prev-testing';
 
-// Simple test helper
-function assert(condition: boolean, message: string) {
-  if (!condition) {
-    throw new Error(\`Assertion failed: \${message}\`);
-  }
-}
+let controller: ${className}Controller;
+let service: ${className}Service;
 
-function assertEquals(actual: any, expected: any, message: string) {
-  if (actual !== expected) {
-    throw new Error(\`\${message}: expected \${expected}, got \${actual}\`);
-  }
-}
+suite('${className}Controller', () => {
+  beforeEach(() => {
+    service = new ${className}Service();
+    controller = new ${className}Controller(service);
+  });
 
-console.log('🧪 Running ${className}Controller tests...\\n');
+  suite('create', () => {
+    test('should create a new ${fileName}', () => {
+      const dto = { name: 'Test ${className}', description: 'Test description' };
+      const result = controller.create(dto);
 
-const service = new ${className}Service();
-const controller = new ${className}Controller(service);
+      expect(result).toBeDefined();
+      expect(result.id).toBeDefined();
+      expect(result.name).toBe(dto.name);
+      expect(result.description).toBe(dto.description);
+    });
+  });
 
-// Test: create
-try {
-  const dto = { name: 'Test ${className}', description: 'Test description' };
-  const result = controller.create(dto);
+  suite('findAll', () => {
+    test('should return an array of ${fileName}s', () => {
+      controller.create({ name: 'Test 1', description: 'Test' });
+      const result = controller.findAll();
 
-  assert(result !== undefined && result !== null, 'create should return a result');
-  assert(result.id !== undefined, 'created item should have an id');
-  assertEquals(result.name, dto.name, 'name should match');
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
+    });
+  });
 
-  console.log('✅ create() - should create a new ${fileName}');
-} catch (error: any) {
-  console.error('❌ create() - failed:', error.message);
-  process.exit(1);
-}
+  suite('findOne', () => {
+    test('should return a single ${fileName}', () => {
+      const created = controller.create({ name: 'FindOne Test', description: 'Test' });
+      const result = controller.findOne(created.id);
 
-// Test: findAll
-try {
-  const result = controller.findAll();
+      expect(result).toBeDefined();
+      expect(result?.id).toBe(created.id);
+    });
 
-  assert(Array.isArray(result), 'findAll should return an array');
-  assert(result.length === 1, 'should have one item');
+    test('should return undefined for non-existent id', () => {
+      const result = controller.findOne('999');
+      expect(result).toBeUndefined();
+    });
+  });
 
-  console.log('✅ findAll() - should return all ${fileName}s');
-} catch (error: any) {
-  console.error('❌ findAll() - failed:', error.message);
-  process.exit(1);
-}
+  suite('update', () => {
+    test('should update a ${fileName}', () => {
+      const created = controller.create({ name: 'Original Name', description: 'Test' });
+      const result = controller.update(created.id, { name: 'Updated Name' });
 
-// Test: findOne
-try {
-  const result = controller.findOne('1');
+      expect(result).toBeDefined();
+      expect(result?.name).toBe('Updated Name');
+    });
 
-  assert(result !== undefined, 'findOne should return an item');
-  assertEquals(result?.id, '1', 'id should match');
+    test('should return undefined for non-existent id', () => {
+      const result = controller.update('999', { name: 'Updated' });
+      expect(result).toBeUndefined();
+    });
+  });
 
-  console.log('✅ findOne() - should return a ${fileName} by id');
-} catch (error: any) {
-  console.error('❌ findOne() - failed:', error.message);
-  process.exit(1);
-}
+  suite('remove', () => {
+    test('should remove a ${fileName}', () => {
+      const created = controller.create({ name: 'To Delete', description: 'Test' });
+      const result = controller.remove(created.id);
 
-// Test: update
-try {
-  const dto = { name: 'Updated ${className}' };
-  const result = controller.update('1', dto);
+      expect(result).toBe(true);
+      expect(service.findOne(created.id)).toBeUndefined();
+    });
 
-  assert(result !== undefined, 'update should return a result');
-  assertEquals(result?.name, dto.name, 'name should be updated');
-
-  console.log('✅ update() - should update a ${fileName}');
-} catch (error: any) {
-  console.error('❌ update() - failed:', error.message);
-  process.exit(1);
-}
-
-// Test: remove
-try {
-  const result = controller.remove('1');
-
-  assert(result === true, 'remove should return true');
-  assertEquals(controller.findAll().length, 0, 'should have no items after removal');
-
-  console.log('✅ remove() - should remove a ${fileName}');
-} catch (error: any) {
-  console.error('❌ remove() - failed:', error.message);
-  process.exit(1);
-}
-
-console.log('\\n🎉 All ${className}Controller tests passed!');
+    test('should return false for non-existent id', () => {
+      const result = controller.remove('999');
+      expect(result).toBe(false);
+    });
+  });
+});
 `;
 
       const serviceSpecPath = path.join(process.cwd(), 'src', `${fileName}`, `${fileName}.service.spec.ts`);
-      const serviceSpecContent = `import { ${className}Service } from './${fileName}.service';
+      const serviceSpecContent = `// 🧪 Han Framework Unit Testing with DI
+import { ${className}Service } from './${fileName}.service';
+import {
+  suite, test, expect, beforeEach
+} from 'han-prev-testing';
 
-// Simple test helper
-function assert(condition: boolean, message: string) {
-  if (!condition) {
-    throw new Error(\`Assertion failed: \${message}\`);
-  }
-}
+let service: ${className}Service;
 
-function assertEquals(actual: any, expected: any, message: string) {
-  if (actual !== expected) {
-    throw new Error(\`\${message}: expected \${expected}, got \${actual}\`);
-  }
-}
+suite('${className}Service', () => {
+  beforeEach(() => {
+    service = new ${className}Service();
+  });
 
-console.log('🧪 Running ${className}Service tests...\\n');
+  suite('create', () => {
+    test('should create a new ${fileName}', () => {
+      const data = { name: 'Test ${className}', description: 'Test description' };
+      const result = service.create(data);
 
-const service = new ${className}Service();
+      expect(result).toBeDefined();
+      expect(result.id).toBeDefined();
+      expect(result.name).toBe(data.name);
+      expect(result.description).toBe(data.description);
+      expect(result.createdAt).toBeInstanceOf(Date);
+      expect(result.updatedAt).toBeInstanceOf(Date);
+    });
+  });
 
-// Test: create
-try {
-  const dto = { name: 'Test ${className}', description: 'Test description' };
-  const result = service.create(dto);
+  suite('findAll', () => {
+    test('should return empty array initially', () => {
+      const result = service.findAll();
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBe(0);
+    });
 
-  assert(result !== undefined && result !== null, 'create should return a result');
-  assert(result.id !== undefined, 'created item should have an id');
-  assertEquals(result.name, dto.name, 'name should match');
+    test('should return all ${fileName}s', () => {
+      service.create({ name: 'Test 1', description: 'Test' });
+      service.create({ name: 'Test 2', description: 'Test' });
 
-  console.log('✅ create() - should create a new ${fileName}');
-} catch (error: any) {
-  console.error('❌ create() - failed:', error.message);
-  process.exit(1);
-}
+      const result = service.findAll();
+      expect(result.length).toBe(2);
+    });
+  });
 
-// Test: findAll
-try {
-  const result = service.findAll();
+  suite('findOne', () => {
+    test('should return a ${fileName} by id', () => {
+      const created = service.create({ name: 'Test ${className}', description: 'Test' });
+      const result = service.findOne(created.id);
 
-  assert(Array.isArray(result), 'findAll should return an array');
-  assert(result.length === 1, 'should have one item');
+      expect(result).toBeDefined();
+      expect(result?.id).toBe(created.id);
+    });
 
-  console.log('✅ findAll() - should return all ${fileName}s');
-} catch (error: any) {
-  console.error('❌ findAll() - failed:', error.message);
-  process.exit(1);
-}
+    test('should return undefined for non-existent id', () => {
+      const result = service.findOne('999');
+      expect(result).toBeUndefined();
+    });
+  });
 
-// Test: findOne
-try {
-  const result = service.findOne('1');
+  suite('update', () => {
+    test('should update a ${fileName}', () => {
+      const created = service.create({ name: 'Original', description: 'Test' });
+      const updated = service.update(created.id, { name: 'Updated' });
 
-  assert(result !== undefined, 'findOne should return an item');
-  assertEquals(result?.id, '1', 'id should match');
+      expect(updated).toBeDefined();
+      expect(updated?.name).toBe('Updated');
+    });
 
-  console.log('✅ findOne() - should return a ${fileName} by id');
-} catch (error: any) {
-  console.error('❌ findOne() - failed:', error.message);
-  process.exit(1);
-}
+    test('should return undefined for non-existent id', () => {
+      const result = service.update('999', { name: 'Updated' });
+      expect(result).toBeUndefined();
+    });
+  });
 
-// Test: update
-try {
-  const dto = { name: 'Updated ${className}' };
-  const result = service.update('1', dto);
+  suite('remove', () => {
+    test('should remove a ${fileName}', () => {
+      const created = service.create({ name: 'Test ${className}', description: 'Test' });
+      const removed = service.remove(created.id);
 
-  assert(result !== undefined, 'update should return a result');
-  assertEquals(result?.name, dto.name, 'name should be updated');
+      expect(removed).toBe(true);
+      expect(service.findOne(created.id)).toBeUndefined();
+    });
 
-  console.log('✅ update() - should update a ${fileName}');
-} catch (error: any) {
-  console.error('❌ update() - failed:', error.message);
-  process.exit(1);
-}
-
-// Test: remove
-try {
-  const result = service.remove('1');
-
-  assert(result === true, 'remove should return true');
-  assertEquals(service.findAll().length, 0, 'should have no items after removal');
-
-  console.log('✅ remove() - should remove a ${fileName}');
-} catch (error: any) {
-  console.error('❌ remove() - failed:', error.message);
-  process.exit(1);
-}
-
-console.log('\\n🎉 All ${className}Service tests passed!');
+    test('should return false for non-existent id', () => {
+      const result = service.remove('999');
+      expect(result).toBe(false);
+    });
+  });
+});
 `;
 
       files.push(controllerSpecPath, serviceSpecPath);

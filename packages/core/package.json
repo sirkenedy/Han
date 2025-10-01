@@ -1,6 +1,6 @@
 {
   "name": "han-prev-core",
-  "version": "1.0.12",
+  "version": "1.0.15",
   "description": "Core framework for Han - A powerful Node.js framework inspired by NestJS",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,7 +32,7 @@
     "README.md"
   ],
   "dependencies": {
-    "han-prev-common": "^1.0.0",
+    "han-prev-common": "^1.0.1",
     "reflect-metadata": "^0.1.13",
     "express": "^4.18.2",
     "cors": "^2.8.5",

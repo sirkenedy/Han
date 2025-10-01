@@ -3,11 +3,18 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import figlet from 'figlet';
+import * as fs from 'fs';
+import * as path from 'path';
 import { NewCommand } from './commands/new.command';
 import { GenerateCommand } from './commands/generate.command';
 import { BuildCommand } from './commands/build.command';
 import { StartCommand } from './commands/start.command';
 import { InfoCommand } from './commands/info.command';
+
+// Read version from package.json dynamically
+const packageJsonPath = path.join(__dirname, '..', 'package.json');
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+const version = packageJson.version;
 
 const program = new Command();
 
@@ -27,7 +34,7 @@ console.log(chalk.gray('A powerful CLI for Han Framework development\n'));
 program
   .name('han')
   .description('Han Framework CLI - Build modern Node.js applications')
-  .version('1.0.4');
+  .version(version);
 
 // Register commands
 program

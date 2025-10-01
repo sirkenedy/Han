@@ -198,16 +198,16 @@ class TestSuite {
     let passed = 0;
 
     for (const test of this.tests) {
+      const startTime = Date.now();
       try {
-        console.log(`  ⏳ ${test.description}`);
-
         // Run beforeEach hooks
         for (const hook of beforeEachHooks) {
           await hook();
         }
 
         await test.fn();
-        console.log(`  ✅ ${test.description}`);
+        const duration = Date.now() - startTime;
+        console.log(`  ✅ ${test.description} \x1b[3m${duration}ms\x1b[0m`);
         passed++;
 
         // Run afterEach hooks
@@ -215,7 +215,8 @@ class TestSuite {
           await hook();
         }
       } catch (error: any) {
-        console.log(`  ❌ ${test.description}`);
+        const duration = Date.now() - startTime;
+        console.log(`  ❌ ${test.description} \x1b[3m${duration}ms\x1b[0m`);
         console.log(`     ${error?.message || error}`);
 
         // Still run afterEach even if test failed
@@ -454,9 +455,19 @@ export class HttpClient {
 
 // Global instance
 const runner = new TestRunner();
+let autoRunScheduled = false;
 
 // 🎨 Exported API
-export const suite = (name: string, fn: () => void) => runner.suite(name, fn);
+export const suite = (name: string, fn: () => void) => {
+  runner.suite(name, fn);
+
+  // Auto-schedule test run when executed directly (check if parent module is the entry point)
+  if (!autoRunScheduled && typeof require !== 'undefined' && require.main && require.main.filename !== __filename) {
+    autoRunScheduled = true;
+    // Run tests on next tick to allow all suites to register
+    process.nextTick(() => runner.run());
+  }
+};
 export const test = (description: string, fn: () => void | Promise<void>) => runner.test(description, fn);
 export const beforeAll = (fn: () => void | Promise<void>) => runner.beforeAll(fn);
 export const afterAll = (fn: () => void | Promise<void>) => runner.afterAll(fn);
