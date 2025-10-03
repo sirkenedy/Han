@@ -815,7 +815,72 @@ suite('${className}Service', () => {
       }
     }
 
+    // Update app.module.ts to import the new module (unless skip-import is set)
+    if (!options.skipImport && !dryRun) {
+      await this.updateAppModule(className, fileName);
+    }
+
     return files;
+  }
+
+  private async updateAppModule(className: string, fileName: string): Promise<void> {
+    const appModulePath = path.join(process.cwd(), 'src', 'app.module.ts');
+
+    if (!fs.existsSync(appModulePath)) {
+      console.log('⚠️  app.module.ts not found. Skipping auto-import.');
+      return;
+    }
+
+    let appModuleContent = await fs.readFile(appModulePath, 'utf-8');
+
+    // Add import statement
+    const importStatement = `import { ${className}Module } from './${fileName}/${fileName}.module';`;
+
+    // Check if import already exists
+    if (appModuleContent.includes(importStatement)) {
+      return;
+    }
+
+    // Find the last import statement
+    const importLines = appModuleContent.split('\n');
+    let lastImportIndex = -1;
+
+    for (let i = 0; i < importLines.length; i++) {
+      if (importLines[i].trim().startsWith('import ')) {
+        lastImportIndex = i;
+      }
+    }
+
+    // Insert new import after the last import
+    if (lastImportIndex !== -1) {
+      importLines.splice(lastImportIndex + 1, 0, importStatement);
+      appModuleContent = importLines.join('\n');
+    }
+
+    // Add module to imports array
+    const moduleImportRegex = /(@Module\s*\(\s*\{[^}]*imports:\s*\[)([^\]]*)/s;
+    const match = appModuleContent.match(moduleImportRegex);
+
+    if (match) {
+      const currentImports = match[2].trim();
+      const newImports = currentImports
+        ? `${currentImports}, ${className}Module`
+        : className + 'Module';
+
+      appModuleContent = appModuleContent.replace(
+        moduleImportRegex,
+        `$1${newImports}`
+      );
+    } else {
+      // If imports array doesn't exist, add it
+      appModuleContent = appModuleContent.replace(
+        /@Module\s*\(\s*\{/,
+        `@Module({\n  imports: [${className}Module],`
+      );
+    }
+
+    await fs.writeFile(appModulePath, appModuleContent);
+    console.log(`✅ Updated app.module.ts with ${className}Module`);
   }
 
   private toPascalCase(str: string): string {
