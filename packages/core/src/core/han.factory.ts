@@ -19,17 +19,38 @@ import type { HelmetOptions } from "helmet";
 const cors: (options?: CorsOptions) => any = require("cors");
 const helmet: (options?: HelmetOptions) => any = require("helmet");
 
+/**
+ * Configuration options for Han Framework application
+ */
 export interface HanApplicationOptions {
+  /** Enable/configure CORS middleware */
   cors?: boolean | CorsOptions;
+  /** Enable/configure Helmet security middleware */
   helmet?: boolean | HelmetOptions;
+  /** Enable/disable body parser middleware (default: true) */
   bodyParser?: boolean;
+  /** Global prefix for all routes (e.g., '/api') */
   globalPrefix?: string;
+  /** Enable microservice mode (disables CORS, Helmet) */
   microservice?: boolean;
+  /** Enable/configure logger */
   logger?: boolean | any;
+  /**
+   * Configure graceful shutdown behavior
+   * When enabled, the application will:
+   * - Stop accepting new requests
+   * - Wait for existing requests to complete
+   * - Execute registered shutdown callbacks
+   * - Close the HTTP server cleanly
+   * - Exit the process
+   */
   shutdownHooks?: {
+    /** Enable graceful shutdown (default: true) */
     enabled?: boolean;
+    /** Signals to listen for (default: ['SIGINT', 'SIGTERM']) */
     signals?: Array<keyof HanApplicationShutdownSignal>;
-    gracefulTimeout?: number; // milliseconds
+    /** Maximum time to wait for graceful shutdown before force exit in milliseconds (default: 10000) */
+    gracefulTimeout?: number;
   };
 }
 
@@ -199,55 +220,59 @@ export class HanFactory {
     this.app.use(errorHandler);
   }
 
+  /**
+   * Setup graceful shutdown handlers for the application
+   *
+   * This method registers signal handlers (SIGINT, SIGTERM) that perform graceful shutdown:
+   * 1. Prevents new requests from being accepted
+   * 2. Waits for existing requests to complete
+   * 3. Executes registered shutdown callbacks (cleanup, database disconnect, etc.)
+   * 4. Closes the HTTP server
+   * 5. Exits the process
+   *
+   * The shutdown process has a configurable timeout (default 10s) to force exit if graceful
+   * shutdown takes too long. If a signal is received twice, the process exits immediately.
+   *
+   * @param _app - The Han application instance (currently unused but kept for future extensions)
+   * @private
+   */
   private setupShutdownHooks(_app: HanApplication): void {
     if (!this.options.shutdownHooks?.enabled) return;
 
     const signals = this.options.shutdownHooks.signals || ["SIGINT", "SIGTERM"];
     const gracefulTimeout = this.options.shutdownHooks.gracefulTimeout || 10000;
 
-    // Setup process signal handlers automatically
+    // Setup process signal handlers for graceful shutdown
     signals.forEach((signal) => {
       process.on(signal, async () => {
+        // Force exit if shutdown is already in progress (double signal)
         if (this.isShuttingDown) {
-          console.log(
-            `\n⚠️  Force shutdown on ${signal}. Process will exit forcefully.`,
-          );
           process.exit(1);
         }
 
-        console.log(`\n🛑 Received ${signal}. Initiating graceful shutdown...`);
         this.isShuttingDown = true;
 
-        // Set timeout for graceful shutdown
+        // Set timeout to force exit if graceful shutdown takes too long
         const shutdownTimer = setTimeout(() => {
-          console.log(
-            `\n⏰ Graceful shutdown timeout (${gracefulTimeout}ms). Forcing exit...`,
-          );
           process.exit(1);
         }, gracefulTimeout);
 
         try {
-          // Execute shutdown callbacks
-          console.log("📞 Executing shutdown hooks...");
+          // Step 1: Execute all registered shutdown callbacks
+          // These allow application code to clean up resources (close DB connections, etc.)
           const shutdownPromises = Array.from(this.shutdownCallbacks).map(
             (callback) => Promise.resolve(callback()),
           );
-
           await Promise.allSettled(shutdownPromises);
 
-          // Close HTTP server
+          // Step 2: Close the HTTP server
+          // This stops accepting new connections and waits for existing requests to finish
           if (this.server) {
-            console.log("🔌 Closing HTTP server...");
             await new Promise<void>((resolve) => {
               this.server.close((err: any) => {
-                if (err) {
-                  if (err.code === "ERR_SERVER_NOT_RUNNING") {
-                    console.log("✅ HTTP server already closed");
-                  } else {
-                    console.error("❌ Error closing server:", err);
-                  }
-                } else {
-                  console.log("✅ HTTP server closed successfully");
+                // Ignore ERR_SERVER_NOT_RUNNING as the server might already be closed
+                if (err && err.code !== "ERR_SERVER_NOT_RUNNING") {
+                  console.error("Error closing server:", err);
                 }
                 resolve();
               });
@@ -255,15 +280,14 @@ export class HanFactory {
           }
 
           clearTimeout(shutdownTimer);
-          console.log("🎉 Graceful shutdown completed. Process exiting...");
           process.exit(0);
         } catch (error: any) {
           clearTimeout(shutdownTimer);
+          // Handle ERR_SERVER_NOT_RUNNING gracefully (server already closed)
           if (error.code === "ERR_SERVER_NOT_RUNNING") {
-            console.log("🎉 Graceful shutdown completed. Process exiting...");
             process.exit(0);
           } else {
-            console.error("❌ Error during shutdown:", error);
+            console.error("Error during shutdown:", error);
             process.exit(1);
           }
         }
@@ -274,10 +298,10 @@ export class HanFactory {
       `🛡️  Shutdown hooks automatically enabled for signals: ${signals.join(", ")}`,
     );
 
-    // Add default cleanup callback
+    // Add default cleanup callback for framework-level cleanup
     this.shutdownCallbacks.add(async () => {
-      console.log("🧹 Running framework cleanup...");
-      // Any default framework cleanup logic can go here
+      // Framework cleanup logic can be added here
+      // Examples: flush logs, close connections, save state, etc.
     });
   }
 
@@ -653,8 +677,26 @@ export class HanFactory {
         console.log("✅ Han Framework application initialized successfully");
       },
 
+      /**
+       * Register a callback to be executed during graceful shutdown
+       *
+       * Use this to clean up resources before the application exits:
+       * - Close database connections
+       * - Flush logs
+       * - Cancel pending operations
+       * - Save application state
+       *
+       * Example:
+       * ```typescript
+       * app.onApplicationShutdown(async () => {
+       *   await database.disconnect();
+       *   console.log('Database connection closed');
+       * });
+       * ```
+       *
+       * @param callback - Async or sync function to execute during shutdown
+       */
       onApplicationShutdown(callback: () => Promise<void> | void): void {
-        // Register a shutdown callback to be executed before application shutdown
         factoryInstance.shutdownCallbacks.add(callback);
       },
     };

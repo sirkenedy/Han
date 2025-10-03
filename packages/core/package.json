@@ -1,6 +1,6 @@
 {
   "name": "han-prev-core",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Core framework for Han - A powerful Node.js framework inspired by NestJS",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

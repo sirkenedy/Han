@@ -100,7 +100,7 @@ export class ProjectGenerator {
         "test:e2e": "han-test --e2e",
       },
       dependencies: {
-        "han-prev-core": "^1.0.15",
+        "han-prev-core": "^1.0.17",
         "han-prev-common": "^1.0.1",
         "reflect-metadata": "^0.1.13",
       },
