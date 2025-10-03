@@ -4,6 +4,7 @@ import {
   METADATA_KEYS,
   ControllerMetadata,
 } from "../decorators/metadata";
+import { container } from "../container/container";
 
 export class RouterFactory {
   static createRouter(controllerInstance: any): Router {
@@ -19,14 +20,31 @@ export class RouterFactory {
       );
     }
 
+    // Get controller-level middleware from @UseMiddleware decorator
+    const controllerMiddleware =
+      Reflect.getMetadata("controller:middleware", controllerInstance) || [];
+
     const routes = MetadataStorage.getRoutes(controllerInstance);
 
     routes.forEach((route) => {
       const fullPath = this.combinePaths(controllerMetadata.path, route.path);
-      const middleware = [
+
+      // Get module-level middleware that applies to this route
+      const moduleMiddleware = this.getModuleMiddlewareForRoute(
+        controllerInstance.constructor,
+        fullPath,
+        route.method.toUpperCase(),
+      );
+
+      const rawMiddleware = [
         ...(controllerMetadata.middleware || []),
+        ...controllerMiddleware,
+        ...moduleMiddleware,
         ...(route.middleware || []),
       ];
+
+      // Resolve middleware (handle classes, instances, and functions)
+      const middleware = this.resolveMiddleware(rawMiddleware);
 
       const originalHandler =
         controllerInstance[route.methodName].bind(controllerInstance);
@@ -96,6 +114,86 @@ export class RouterFactory {
     });
 
     return router;
+  }
+
+  /**
+   * Get module-level middleware that should be applied to a specific route
+   */
+  private static getModuleMiddlewareForRoute(
+    controllerClass: any,
+    routePath: string,
+    method: string,
+  ): any[] {
+    const allConfigs = container.getAllMiddlewareConfigs();
+    const applicableMiddleware: any[] = [];
+
+    allConfigs.forEach((consumer) => {
+      if (!consumer || !consumer.getConfigs) {
+        return;
+      }
+
+      const configs = consumer.getConfigs();
+      configs.forEach((config: any) => {
+        if (
+          consumer.shouldApplyMiddleware(
+            config,
+            controllerClass,
+            routePath,
+            method,
+          )
+        ) {
+          applicableMiddleware.push(...config.middleware);
+        }
+      });
+    });
+
+    return applicableMiddleware;
+  }
+
+  /**
+   * Resolves middleware to Express-compatible functions.
+   * Handles:
+   * - Function middleware (pass through)
+   * - Class instances with use() method
+   * - Class constructors (auto-instantiate and call use())
+   */
+  private static resolveMiddleware(middlewareList: any[]): any[] {
+    return middlewareList.map((mw) => {
+      // Case 1: Already a function (Express middleware)
+      if (typeof mw === "function" && mw.length >= 2) {
+        // Check if it's a constructor (class) vs regular function
+        const isClass = /^\s*class\s+/.test(mw.toString());
+
+        if (isClass) {
+          // Case 2: Class constructor - instantiate and call use()
+          try {
+            const instance = new mw();
+            if (instance.use && typeof instance.use === "function") {
+              return instance.use();
+            }
+            throw new Error(
+              `Middleware class ${mw.name} must implement use() method`,
+            );
+          } catch (error) {
+            throw new Error(
+              `Failed to instantiate middleware class ${mw.name}: ${error.message}`,
+            );
+          }
+        }
+
+        // Regular function middleware
+        return mw;
+      }
+
+      // Case 3: Instance with use() method
+      if (mw && typeof mw.use === "function") {
+        return mw.use();
+      }
+
+      throw new Error(
+        `Invalid middleware: must be a function, class, or object with use() method`,
+      );
+    });
   }
 
   private static combinePaths(basePath: string, routePath: string): string {

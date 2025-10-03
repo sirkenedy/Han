@@ -12,6 +12,24 @@ export interface DynamicModule {
   global?: boolean;
 }
 
+export interface MiddlewareConsumer {
+  apply(...middleware: any[]): MiddlewareConfigProxy;
+}
+
+export interface MiddlewareConfigProxy {
+  forRoutes(...routes: (string | Type<any> | RouteInfo)[]): MiddlewareConsumer;
+  exclude(...routes: (string | RouteInfo)[]): MiddlewareConfigProxy;
+}
+
+export interface RouteInfo {
+  path: string;
+  method?: RequestMethod;
+}
+
+export interface HanModule {
+  configure?(consumer: MiddlewareConsumer): void;
+}
+
 export interface ModuleMetadata {
   providers?: any[];
   controllers?: any[];

@@ -23,6 +23,7 @@ class Container {
   private metadataCache = new Map<any, any[]>(); // Cache for parameter types
   private dependencyCache = new Map<string, any[]>(); // Cache for resolved dependencies
   private asyncProviders = new Map<string, Promise<any>>(); // Cache for async factory providers
+  private moduleMiddlewareConfigs = new Map<any, any>(); // Store middleware configs per module
   private lifecycleHooks = new Map<
     any,
     { onModuleInit?: () => any; onModuleDestroy?: () => any }
@@ -322,6 +323,27 @@ class Container {
     entries.forEach(([token, _], index) => {
       this.singletons.set(token, results[index]);
     });
+  }
+
+  /**
+   * Configure module middleware
+   */
+  configureModuleMiddleware(moduleClass: any, consumer: any): void {
+    this.moduleMiddlewareConfigs.set(moduleClass, consumer);
+  }
+
+  /**
+   * Get middleware configurations for a module
+   */
+  getModuleMiddlewareConfigs(moduleClass: any): any {
+    return this.moduleMiddlewareConfigs.get(moduleClass);
+  }
+
+  /**
+   * Get all middleware configurations
+   */
+  getAllMiddlewareConfigs(): Map<any, any> {
+    return this.moduleMiddlewareConfigs;
   }
 }
 

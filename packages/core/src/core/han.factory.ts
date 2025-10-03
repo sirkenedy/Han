@@ -207,6 +207,34 @@ export class HanFactory {
   private async bootstrapModule(): Promise<void> {
     container.registerModule(this.moduleClass);
     this.controllers = this.extractControllersFromModule(this.moduleClass);
+
+    // Call configure() method on modules if it exists
+    this.configureModuleMiddleware(this.moduleClass);
+  }
+
+  private configureModuleMiddleware(moduleClass: any): void {
+    const {
+      MiddlewareConsumerImpl,
+    } = require("../middleware/middleware-consumer");
+
+    // Check if module has configure method
+    const moduleInstance = this.createModuleInstance(moduleClass);
+    if (moduleInstance && typeof moduleInstance.configure === "function") {
+      const consumer = new MiddlewareConsumerImpl();
+      moduleInstance.configure(consumer);
+      container.configureModuleMiddleware(moduleClass, consumer);
+    }
+  }
+
+  private createModuleInstance(moduleClass: any): any {
+    try {
+      // Try to instantiate the module class
+      return new moduleClass();
+    } catch (error) {
+      // Module might not be instantiable (e.g., has required constructor params)
+      // In that case, skip configure
+      return null;
+    }
   }
 
   private setupRoutes(): void {
