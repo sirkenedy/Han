@@ -1,5 +1,10 @@
 import "reflect-metadata";
-import { MetadataStorage, METADATA_KEYS, ModuleMetadata } from "../decorators";
+import {
+  MetadataStorage,
+  METADATA_KEYS,
+  ModuleMetadata,
+  getInjectionTokens,
+} from "../decorators";
 import { Logger } from "../utils";
 
 interface Provider {
@@ -112,12 +117,19 @@ class Container {
       return new target();
     }
 
+    // Get custom injection tokens (from @Inject decorator)
+    const injectionTokens = getInjectionTokens(target);
+
     // Check if dependencies are already cached
     const cacheKey = target.name;
     let dependencies = this.dependencyCache.get(cacheKey);
 
     if (!dependencies) {
-      dependencies = this.resolveDependencies(safeParamTypes, target.name);
+      dependencies = this.resolveDependencies(
+        safeParamTypes,
+        target.name,
+        injectionTokens,
+      );
       this.dependencyCache.set(cacheKey, dependencies);
     }
 
@@ -135,8 +147,25 @@ class Container {
     return new target(...validDependencies);
   }
 
-  private resolveDependencies(paramTypes: any[], targetName: string): any[] {
+  private resolveDependencies(
+    paramTypes: any[],
+    targetName: string,
+    injectionTokens: { [key: number]: string } = {},
+  ): any[] {
     return paramTypes.map((paramType: any, index: number) => {
+      // Check if there's a custom injection token for this parameter
+      const customToken = injectionTokens[index];
+      if (customToken) {
+        try {
+          return this.resolve(customToken);
+        } catch (error) {
+          Logger.error(
+            `Could not resolve custom injection token '${customToken}' at parameter ${index} in ${targetName}`,
+          );
+          throw error;
+        }
+      }
+
       if (!paramType || !paramType.name) {
         return undefined;
       }
