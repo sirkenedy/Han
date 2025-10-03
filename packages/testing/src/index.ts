@@ -215,7 +215,10 @@ class TestSuite {
 
         await test.fn();
         const duration = Date.now() - startTime;
-        console.log(`  ✅ ${test.description} \x1b[3m${duration}ms\x1b[0m`);
+        // Orange color (ANSI code \x1b[38;5;214m) + italic for timing
+        console.log(
+          `  ✅ ${test.description} \x1b[3m\x1b[38;5;214m${duration}ms\x1b[0m`,
+        );
         passed++;
 
         // Run afterEach hooks
@@ -224,7 +227,10 @@ class TestSuite {
         }
       } catch (error: any) {
         const duration = Date.now() - startTime;
-        console.log(`  ❌ ${test.description} \x1b[3m${duration}ms\x1b[0m`);
+        // Orange color for timing even on failed tests
+        console.log(
+          `  ❌ ${test.description} \x1b[3m\x1b[38;5;214m${duration}ms\x1b[0m`,
+        );
         console.log(`     ${error?.message || error}`);
 
         // Still run afterEach even if test failed

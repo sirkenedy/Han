@@ -1,6 +1,6 @@
 {
   "name": "han-prev-testing",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "Testing framework for Han Framework with DI support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
