@@ -1,5 +1,5 @@
-import 'reflect-metadata';
-import { MetadataStorage, METADATA_KEYS } from './metadata';
+import "reflect-metadata";
+import { MetadataStorage, METADATA_KEYS } from "./metadata";
 
 export function Injectable() {
   return function <T extends new (...args: any[]) => any>(target: T) {

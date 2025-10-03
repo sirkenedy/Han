@@ -9,6 +9,7 @@ Welcome to the Han Framework documentation! This directory contains comprehensiv
 ## 🎯 Quick Navigation
 
 ### 🚀 **Getting Started**
+
 New to Han Framework? Start here!
 
 - **[Getting Started Guide](./GETTING_STARTED.md)** - Build your first app in 5 minutes
@@ -17,11 +18,13 @@ New to Han Framework? Start here!
 ### 📖 **Core Documentation**
 
 #### **Framework Guides**
+
 - **[Technical Architecture](../HAN_FRAMEWORK.md)** - Deep dive into framework internals
 - **[API Reference](./API_REFERENCE.md)** - Complete API documentation
 - **[Lifecycle Management](./LIFECYCLE_MANAGEMENT.md)** - Graceful shutdown and cleanup hooks
 
 #### **Feature Guides**
+
 - **[Global Interceptors](../examples/global-interceptors.example.ts)** - Request/response lifecycle hooks
 - **[Custom Shutdown Hooks](../examples/shutdown-hooks.example.ts)** - Application cleanup examples
 - **[Graceful Shutdown Demo](../examples/graceful-shutdown.example.ts)** - Shutdown behavior demonstration
@@ -32,38 +35,41 @@ New to Han Framework? Start here!
 
 ### 🏗️ **Architecture & Design**
 
-| Document | Description | Audience |
-|----------|-------------|----------|
+| Document                                      | Description                                       | Audience                          |
+| --------------------------------------------- | ------------------------------------------------- | --------------------------------- |
 | [Technical Architecture](../HAN_FRAMEWORK.md) | Framework internals, design patterns, performance | Advanced developers, contributors |
-| [API Reference](./API_REFERENCE.md) | Complete API documentation with examples | All developers |
-| [Getting Started](./GETTING_STARTED.md) | Step-by-step tutorial for beginners | New users |
+| [API Reference](./API_REFERENCE.md)           | Complete API documentation with examples          | All developers                    |
+| [Getting Started](./GETTING_STARTED.md)       | Step-by-step tutorial for beginners               | New users                         |
 
 ### 🔧 **Features & Concepts**
 
-| Feature | Documentation | Examples |
-|---------|---------------|----------|
-| **Lifecycle Management** | [Guide](./LIFECYCLE_MANAGEMENT.md) | [Shutdown Hooks](../examples/shutdown-hooks.example.ts) |
-| **Global Interceptors** | [API Reference](./API_REFERENCE.md#-interceptors) | [Demo](../examples/global-interceptors.example.ts) |
-| **Environment Detection** | [Architecture](../HAN_FRAMEWORK.md#1-environment-detection-system) | Built into framework |
-| **Route Analytics** | [Architecture](../HAN_FRAMEWORK.md#3-route-analytics-and-mapping) | Automatic display |
+| Feature                   | Documentation                                                      | Examples                                                |
+| ------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------- |
+| **Lifecycle Management**  | [Guide](./LIFECYCLE_MANAGEMENT.md)                                 | [Shutdown Hooks](../examples/shutdown-hooks.example.ts) |
+| **Global Interceptors**   | [API Reference](./API_REFERENCE.md#-interceptors)                  | [Demo](../examples/global-interceptors.example.ts)      |
+| **Environment Detection** | [Architecture](../HAN_FRAMEWORK.md#1-environment-detection-system) | Built into framework                                    |
+| **Route Analytics**       | [Architecture](../HAN_FRAMEWORK.md#3-route-analytics-and-mapping)  | Automatic display                                       |
 
 ---
 
 ## 🎓 Learning Path
 
 ### **For Beginners**
+
 1. 📖 Read [Main README](../README.md) - Framework overview
 2. 🚀 Follow [Getting Started Guide](./GETTING_STARTED.md) - Build first app
 3. 🔧 Explore [API Reference](./API_REFERENCE.md) - Learn the APIs
 4. 💡 Check [Examples](../examples/) - See real implementations
 
 ### **For Intermediate Developers**
+
 1. 🏗️ Study [Technical Architecture](../HAN_FRAMEWORK.md) - Understand internals
 2. 🛡️ Master [Lifecycle Management](./LIFECYCLE_MANAGEMENT.md) - Production readiness
 3. 🌐 Implement [Global Interceptors](../examples/global-interceptors.example.ts) - Cross-cutting concerns
 4. 🧪 Build advanced features using [API Reference](./API_REFERENCE.md)
 
 ### **For Advanced Users & Contributors**
+
 1. 🔬 Deep dive into [Framework Architecture](../HAN_FRAMEWORK.md) - Internal design
 2. ⚡ Study performance optimizations and benchmarks
 3. 🔌 Create custom extensions and interceptors
@@ -114,12 +120,12 @@ await app.listen(3000);
 const app = await HanFactory.create(AppModule, {
   cors: true | corsOptions,
   helmet: true | helmetOptions,
-  globalPrefix: '/api',
+  globalPrefix: "/api",
   shutdownHooks: {
     enabled: true,
     gracefulTimeout: 10000,
-    signals: ['SIGINT', 'SIGTERM']
-  }
+    signals: ["SIGINT", "SIGTERM"],
+  },
 });
 ```
 
@@ -128,6 +134,7 @@ const app = await HanFactory.create(AppModule, {
 ## 🎯 Framework Features
 
 ### **Zero Configuration**
+
 - ✅ CORS enabled by default
 - ✅ Security headers (Helmet) configured
 - ✅ Request logging with trace IDs
@@ -135,6 +142,7 @@ const app = await HanFactory.create(AppModule, {
 - ✅ Environment auto-detection
 
 ### **Developer Experience**
+
 - ✅ Beautiful route analytics dashboard
 - ✅ Rich console output with emojis
 - ✅ Automatic error handling
@@ -142,6 +150,7 @@ const app = await HanFactory.create(AppModule, {
 - ✅ NestJS compatibility
 
 ### **Production Ready**
+
 - ✅ Performance monitoring built-in
 - ✅ Memory management and cleanup
 - ✅ Container/cloud platform detection
@@ -154,30 +163,31 @@ const app = await HanFactory.create(AppModule, {
 
 ### **vs NestJS**
 
-| Feature | Han Framework | NestJS |
-|---------|---------------|---------|
-| **Setup Time** | 2 minutes | 15+ minutes |
-| **Configuration** | Zero config | Manual setup |
-| **Shutdown Hooks** | Automatic | Manual `enableShutdownHooks()` |
-| **Security** | Built-in | Manual configuration |
-| **Route Analytics** | Built-in | Not included |
-| **Interceptors** | Simple hooks | RxJS observables |
+| Feature             | Han Framework | NestJS                         |
+| ------------------- | ------------- | ------------------------------ |
+| **Setup Time**      | 2 minutes     | 15+ minutes                    |
+| **Configuration**   | Zero config   | Manual setup                   |
+| **Shutdown Hooks**  | Automatic     | Manual `enableShutdownHooks()` |
+| **Security**        | Built-in      | Manual configuration           |
+| **Route Analytics** | Built-in      | Not included                   |
+| **Interceptors**    | Simple hooks  | RxJS observables               |
 
 ### **vs Express**
 
-| Feature | Han Framework | Express |
-|---------|---------------|---------|
-| **Type Safety** | Full TypeScript | Manual typing |
-| **Dependency Injection** | Built-in | Manual setup |
-| **Module System** | Organized modules | Manual organization |
-| **Lifecycle Management** | Automatic | Manual implementation |
-| **Security** | Built-in | Manual middleware |
+| Feature                  | Han Framework     | Express               |
+| ------------------------ | ----------------- | --------------------- |
+| **Type Safety**          | Full TypeScript   | Manual typing         |
+| **Dependency Injection** | Built-in          | Manual setup          |
+| **Module System**        | Organized modules | Manual organization   |
+| **Lifecycle Management** | Automatic         | Manual implementation |
+| **Security**             | Built-in          | Manual middleware     |
 
 ---
 
 ## 🧪 Examples and Demos
 
 ### **Live Examples**
+
 Explore working examples in the [`examples/`](../examples/) directory:
 
 - **[Global Interceptors](../examples/global-interceptors.example.ts)** - Request/response hooks
@@ -202,18 +212,21 @@ npm run build && node dist/examples/shutdown-hooks.example.js
 ## 🤝 Contributing to Documentation
 
 ### **Improve Existing Docs**
+
 - Fix typos and grammatical errors
 - Add missing examples or use cases
 - Improve code snippets and explanations
 - Update outdated information
 
 ### **Add New Documentation**
+
 - Advanced use cases and patterns
 - Integration guides (databases, external services)
 - Deployment guides (Docker, Kubernetes, cloud platforms)
 - Performance optimization guides
 
 ### **Documentation Standards**
+
 - Use clear, concise language
 - Include working code examples
 - Provide both basic and advanced examples
@@ -224,12 +237,14 @@ npm run build && node dist/examples/shutdown-hooks.example.js
 ## 📞 Support & Community
 
 ### **Getting Help**
+
 - 📖 Check documentation first
 - 💬 Join community discussions
 - 🐛 Report issues on GitHub
 - 💡 Request features
 
 ### **Stay Updated**
+
 - ⭐ Star the repository
 - 👀 Watch for updates
 - 📢 Follow announcements
@@ -240,6 +255,7 @@ npm run build && node dist/examples/shutdown-hooks.example.js
 ## 🗺️ Documentation Roadmap
 
 ### **Coming Soon**
+
 - 🗄️ Database integration guides
 - 🔐 Authentication & authorization patterns
 - 🧪 Advanced testing strategies
@@ -247,6 +263,7 @@ npm run build && node dist/examples/shutdown-hooks.example.js
 - 📊 Monitoring and observability setup
 
 ### **Future Plans**
+
 - 🎥 Video tutorials and walkthroughs
 - 📱 Interactive documentation
 - 🌍 Multi-language support
@@ -261,4 +278,4 @@ npm run build && node dist/examples/shutdown-hooks.example.js
 - 🏗️ **Want to understand internals?** → [Technical Architecture](../HAN_FRAMEWORK.md)
 - 💡 **Looking for examples?** → [Examples Directory](../examples/)
 
-*Happy building with Han Framework!* 🎉
+_Happy building with Han Framework!_ 🎉

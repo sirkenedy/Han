@@ -1,6 +1,6 @@
-import 'reflect-metadata';
-import { MetadataStorage, METADATA_KEYS, ModuleMetadata } from '../decorators';
-import { Logger } from '../utils';
+import "reflect-metadata";
+import { MetadataStorage, METADATA_KEYS, ModuleMetadata } from "../decorators";
+import { Logger } from "../utils";
 
 interface Provider {
   provide: string;
@@ -13,10 +13,14 @@ class Container {
   private instances = new Map<string, any>();
   private singletons = new Map<string, any>();
   private processedModules = new Set<any>();
-  private metadataCache = new Map<any, any[]>();  // Cache for parameter types
+  private metadataCache = new Map<any, any[]>(); // Cache for parameter types
   private dependencyCache = new Map<string, any[]>(); // Cache for resolved dependencies
 
-  register<T>(token: string, factory: () => T, singleton: boolean = false): void {
+  register<T>(
+    token: string,
+    factory: () => T,
+    singleton: boolean = false,
+  ): void {
     this.instances.set(token, { factory, singleton });
   }
 
@@ -40,25 +44,34 @@ class Container {
     if (provider.useValue) {
       this.register(provider.provide, () => provider.useValue, true);
     } else if (provider.useClass) {
-      this.register(provider.provide, () => {
-        const dependencies = provider.inject?.map(dep => this.resolve(dep)) || [];
-        return new provider.useClass(...dependencies);
-      }, true);
+      this.register(
+        provider.provide,
+        () => {
+          const dependencies =
+            provider.inject?.map((dep) => this.resolve(dep)) || [];
+          return new provider.useClass(...dependencies);
+        },
+        true,
+      );
     }
   }
 
   registerController<T>(ControllerClass: new (...args: any[]) => T): void {
     Logger.debug(`Auto-registering controller: ${ControllerClass.name}`);
-    this.register(ControllerClass.name, () => {
-      return this.createInstance(ControllerClass);
-    }, true);
+    this.register(
+      ControllerClass.name,
+      () => {
+        return this.createInstance(ControllerClass);
+      },
+      true,
+    );
   }
 
   private createInstance<T>(target: new (...args: any[]) => T): T {
     // Cache metadata lookups for better performance
     let paramTypes = this.metadataCache.get(target);
     if (!paramTypes) {
-      const metadata = Reflect.getMetadata('design:paramtypes', target);
+      const metadata = Reflect.getMetadata("design:paramtypes", target);
       paramTypes = metadata || [];
       this.metadataCache.set(target, paramTypes as any[]);
     }
@@ -80,10 +93,14 @@ class Container {
     }
 
     // Filter out undefined dependencies and create instance
-    const validDependencies = dependencies.filter((dep: any) => dep !== undefined);
+    const validDependencies = dependencies.filter(
+      (dep: any) => dep !== undefined,
+    );
 
     if (validDependencies.length !== safeParamTypes.length) {
-      Logger.debug(`${target.name} created with ${validDependencies.length}/${safeParamTypes.length} dependencies resolved`);
+      Logger.debug(
+        `${target.name} created with ${validDependencies.length}/${safeParamTypes.length} dependencies resolved`,
+      );
     }
 
     return new target(...validDependencies);
@@ -98,11 +115,16 @@ class Container {
       try {
         return this.resolve(paramType.name);
       } catch (error) {
-        Logger.debug(`Dependency resolution failed for ${paramType.name} at parameter ${index} in ${targetName}. Trying alternative resolution...`);
+        Logger.debug(
+          `Dependency resolution failed for ${paramType.name} at parameter ${index} in ${targetName}. Trying alternative resolution...`,
+        );
 
         // Try to find a provider with the same type
         for (const [token] of this.instances.entries()) {
-          if (token.includes(paramType.name) || paramType.name.includes(token)) {
+          if (
+            token.includes(paramType.name) ||
+            paramType.name.includes(token)
+          ) {
             try {
               return this.resolve(token);
             } catch {
@@ -111,7 +133,9 @@ class Container {
           }
         }
 
-        Logger.warn(`Could not resolve dependency ${paramType.name} for ${targetName}`);
+        Logger.warn(
+          `Could not resolve dependency ${paramType.name} for ${targetName}`,
+        );
         return undefined;
       }
     });
@@ -127,11 +151,13 @@ class Container {
     // Get module metadata from decorator
     const moduleMetadata = MetadataStorage.get<ModuleMetadata>(
       moduleClass.prototype,
-      METADATA_KEYS.MODULE
+      METADATA_KEYS.MODULE,
     );
 
     if (!moduleMetadata) {
-      throw new Error(`Module ${moduleClass.name} is missing @Module decorator`);
+      throw new Error(
+        `Module ${moduleClass.name} is missing @Module decorator`,
+      );
     }
 
     // Register imported modules first
@@ -144,11 +170,15 @@ class Container {
     // Register module providers
     if (moduleMetadata.providers) {
       moduleMetadata.providers.forEach((provider: Provider | any) => {
-        if (typeof provider === 'function') {
+        if (typeof provider === "function") {
           // Simple class provider - use reflection for dynamic dependency injection
-          this.register(provider.name, () => {
-            return this.createInstance(provider);
-          }, true);
+          this.register(
+            provider.name,
+            () => {
+              return this.createInstance(provider);
+            },
+            true,
+          );
         } else {
           // Complex provider object
           this.registerProvider(provider);
@@ -167,7 +197,7 @@ class Container {
   getModuleMetadata(moduleClass: any): ModuleMetadata | undefined {
     return MetadataStorage.get<ModuleMetadata>(
       moduleClass.prototype,
-      METADATA_KEYS.MODULE
+      METADATA_KEYS.MODULE,
     );
   }
 }
@@ -175,6 +205,6 @@ class Container {
 const container = new Container();
 
 // Register Logger as a global service
-container.register('Logger', () => Logger, true);
+container.register("Logger", () => Logger, true);
 
 export { container };

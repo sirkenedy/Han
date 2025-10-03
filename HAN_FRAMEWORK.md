@@ -28,7 +28,7 @@ The framework uses a factory pattern for application creation with intelligent e
 export class HanFactory {
   static async create(
     moduleClass: any,
-    options: HanApplicationOptions = {}
+    options: HanApplicationOptions = {},
   ): Promise<HanApplication> {
     // Environment detection and auto-configuration
     const envInfo = EnvironmentDetector.detect();
@@ -42,6 +42,7 @@ export class HanFactory {
 ```
 
 **Key Components:**
+
 - **Environment Detection**: Automatic container/cloud platform detection
 - **Smart Defaults**: Configuration based on deployment environment
 - **Dependency Injection**: Reflection-based container with circular dependency protection
@@ -57,7 +58,7 @@ export class Container {
 
   // Smart dependency resolution with fallback strategies
   resolve<T>(token: string | (new (...args: any[]) => T)): T {
-    const key = typeof token === 'string' ? token : token.name;
+    const key = typeof token === "string" ? token : token.name;
 
     // Return cached instance for singletons
     if (this.instances.has(key)) {
@@ -75,6 +76,7 @@ export class Container {
 ```
 
 **Features:**
+
 - Singleton management with lazy initialization
 - Circular dependency detection and prevention
 - Graceful fallback for unresolved dependencies
@@ -93,21 +95,22 @@ export class EnvironmentDetector {
       platform: this.detectPlatform(),
       containerized: this.isContainerized(),
       cloudProvider: this.detectCloudProvider(),
-      nodeEnv: process.env.NODE_ENV || 'development'
+      nodeEnv: process.env.NODE_ENV || "development",
     };
   }
 
   private static detectPlatform(): Platform {
-    if (process.env.KUBERNETES_SERVICE_HOST) return 'kubernetes';
-    if (process.env.DOCKER_CONTAINER) return 'docker';
-    if (process.env.DYNO) return 'heroku';
-    if (process.env.VERCEL) return 'vercel';
-    return 'local';
+    if (process.env.KUBERNETES_SERVICE_HOST) return "kubernetes";
+    if (process.env.DOCKER_CONTAINER) return "docker";
+    if (process.env.DYNO) return "heroku";
+    if (process.env.VERCEL) return "vercel";
+    return "local";
   }
 }
 ```
 
 **Capabilities:**
+
 - Docker/Kubernetes detection
 - Cloud platform identification (AWS, GCP, Azure, Heroku, Vercel)
 - Development vs. production environment classification
@@ -119,7 +122,10 @@ export class EnvironmentDetector {
 // Simplified interceptor interface
 export interface HanInterceptor {
   beforeHandle?(context: InterceptorContext): void | Promise<void>;
-  afterHandle?(context: InterceptorContext, response: InterceptorResponse): void | Promise<void>;
+  afterHandle?(
+    context: InterceptorContext,
+    response: InterceptorResponse,
+  ): void | Promise<void>;
   onError?(context: InterceptorContext, error: any): void | Promise<void>;
 }
 
@@ -130,46 +136,58 @@ export interface InterceptorContext {
   method: string;
   path: string;
   startTime: number;
-  traceId: string;  // Automatically generated for request tracking
+  traceId: string; // Automatically generated for request tracking
 }
 ```
 
 **Built-in Interceptors:**
 
 #### LoggingInterceptor
+
 ```typescript
 export class LoggingInterceptor extends BaseInterceptor {
   beforeHandle(context: InterceptorContext): void {
     const { method, path, traceId } = context;
-    const ip = context.req.ip || 'unknown';
+    const ip = context.req.ip || "unknown";
     console.log(`📥 ${method} ${path} - ${ip} - [${traceId}] - Started`);
   }
 
-  afterHandle(context: InterceptorContext, response: InterceptorResponse): void {
+  afterHandle(
+    context: InterceptorContext,
+    response: InterceptorResponse,
+  ): void {
     const { method, path, traceId } = context;
     const { statusCode, duration } = response;
-    const emoji = statusCode >= 400 ? '❌' : statusCode >= 300 ? '🔄' : '✅';
-    console.log(`📤 ${method} ${path} - ${statusCode} ${emoji} - ${duration}ms - [${traceId}]`);
+    const emoji = statusCode >= 400 ? "❌" : statusCode >= 300 ? "🔄" : "✅";
+    console.log(
+      `📤 ${method} ${path} - ${statusCode} ${emoji} - ${duration}ms - [${traceId}]`,
+    );
   }
 }
 ```
 
 #### PerformanceInterceptor
+
 ```typescript
 export class PerformanceInterceptor extends BaseInterceptor {
   constructor(private slowRequestThreshold: number = 1000) {}
 
   beforeHandle(context: InterceptorContext): void {
-    context.res.header('X-Response-Time-Start', context.startTime.toString());
-    context.res.header('X-Trace-ID', context.traceId);
+    context.res.header("X-Response-Time-Start", context.startTime.toString());
+    context.res.header("X-Trace-ID", context.traceId);
   }
 
-  afterHandle(context: InterceptorContext, response: InterceptorResponse): void {
+  afterHandle(
+    context: InterceptorContext,
+    response: InterceptorResponse,
+  ): void {
     const { duration } = response;
-    context.res.header('X-Response-Time', `${duration}ms`);
+    context.res.header("X-Response-Time", `${duration}ms`);
 
     if (duration > this.slowRequestThreshold) {
-      console.warn(`🐌 Slow request: ${context.method} ${context.path} - ${duration}ms`);
+      console.warn(
+        `🐌 Slow request: ${context.method} ${context.path} - ${duration}ms`,
+      );
     }
   }
 }
@@ -181,8 +199,12 @@ export class PerformanceInterceptor extends BaseInterceptor {
 export class RouteMapper {
   // Comprehensive route analysis and display
   static displayRoutes(serverUrl?: string, environment?: string): void {
-    console.log(this.colors.cyan + '🚀 Han Framework - Application Started' + this.colors.reset);
-    console.log(''.padEnd(60, '═'));
+    console.log(
+      this.colors.cyan +
+        "🚀 Han Framework - Application Started" +
+        this.colors.reset,
+    );
+    console.log("".padEnd(60, "═"));
 
     this.displayAnalytics();
     this.displayRoutesByController();
@@ -195,9 +217,15 @@ export class RouteMapper {
     const methodBreakdown = this.getMethodBreakdown(routes);
 
     console.log(`📊 Route Analytics Dashboard:`);
-    console.log(`   🎯 Total Routes: ${this.colors.green}${routes.length}${this.colors.reset}`);
-    console.log(`   🏛️  Controllers: ${this.colors.blue}${controllers.length}${this.colors.reset}`);
-    console.log(`   📅 Generated: ${this.colors.gray}${new Date().toLocaleString()}${this.colors.reset}`);
+    console.log(
+      `   🎯 Total Routes: ${this.colors.green}${routes.length}${this.colors.reset}`,
+    );
+    console.log(
+      `   🏛️  Controllers: ${this.colors.blue}${controllers.length}${this.colors.reset}`,
+    );
+    console.log(
+      `   📅 Generated: ${this.colors.gray}${new Date().toLocaleString()}${this.colors.reset}`,
+    );
 
     this.displayMethodBreakdown(methodBreakdown);
   }
@@ -205,6 +233,7 @@ export class RouteMapper {
 ```
 
 **Features:**
+
 - Real-time route collection and analysis
 - HTTP method distribution statistics
 - Middleware detection and display
@@ -219,10 +248,10 @@ export class LifecycleManager {
   private isShuttingDown = false;
 
   setupShutdownHooks(options: ShutdownHooksOptions): void {
-    const signals = options.signals || ['SIGINT', 'SIGTERM'];
+    const signals = options.signals || ["SIGINT", "SIGTERM"];
     const timeout = options.gracefulTimeout || 10000;
 
-    signals.forEach(signal => {
+    signals.forEach((signal) => {
       process.on(signal, async () => {
         if (this.isShuttingDown) {
           console.log(`⚠️ Force shutdown on ${signal}`);
@@ -235,7 +264,7 @@ export class LifecycleManager {
   }
 
   private async gracefulShutdown(timeout: number): Promise<void> {
-    console.log('🛑 Initiating graceful shutdown...');
+    console.log("🛑 Initiating graceful shutdown...");
     this.isShuttingDown = true;
 
     const shutdownTimer = setTimeout(() => {
@@ -245,19 +274,19 @@ export class LifecycleManager {
 
     try {
       // Execute custom shutdown hooks
-      console.log('📞 Executing shutdown hooks...');
+      console.log("📞 Executing shutdown hooks...");
       await Promise.allSettled(
-        Array.from(this.shutdownCallbacks).map(callback => callback())
+        Array.from(this.shutdownCallbacks).map((callback) => callback()),
       );
 
       // Close HTTP server
       await this.closeServer();
 
       clearTimeout(shutdownTimer);
-      console.log('🎉 Graceful shutdown completed');
+      console.log("🎉 Graceful shutdown completed");
       process.exit(0);
     } catch (error) {
-      console.error('❌ Error during shutdown:', error);
+      console.error("❌ Error during shutdown:", error);
       process.exit(1);
     }
   }
@@ -274,10 +303,18 @@ export class LifecycleManager {
 // Module decorator with metadata registration
 export function Module(metadata: ModuleMetadata): ClassDecorator {
   return (target: any) => {
-    Reflect.defineMetadata('module:imports', metadata.imports || [], target);
-    Reflect.defineMetadata('module:controllers', metadata.controllers || [], target);
-    Reflect.defineMetadata('module:providers', metadata.providers || [], target);
-    Reflect.defineMetadata('module:exports', metadata.exports || [], target);
+    Reflect.defineMetadata("module:imports", metadata.imports || [], target);
+    Reflect.defineMetadata(
+      "module:controllers",
+      metadata.controllers || [],
+      target,
+    );
+    Reflect.defineMetadata(
+      "module:providers",
+      metadata.providers || [],
+      target,
+    );
+    Reflect.defineMetadata("module:exports", metadata.exports || [], target);
 
     // Register module in global registry
     ModuleRegistry.register(target, metadata);
@@ -289,7 +326,7 @@ export function Module(metadata: ModuleMetadata): ClassDecorator {
   imports: [DatabaseModule, AuthModule],
   controllers: [UserController, AdminController],
   providers: [UserService, EmailService],
-  exports: [UserService]
+  exports: [UserService],
 })
 export class UserModule {}
 ```
@@ -298,17 +335,17 @@ export class UserModule {}
 
 ```typescript
 // Controller decorator with automatic route registration
-export function Controller(prefix: string = ''): ClassDecorator {
+export function Controller(prefix: string = ""): ClassDecorator {
   return (target: any) => {
-    Reflect.defineMetadata('controller:prefix', prefix, target);
+    Reflect.defineMetadata("controller:prefix", prefix, target);
     RouteRegistry.registerController(target, prefix);
   };
 }
 
 // HTTP method decorators
-export function Get(path: string = ''): MethodDecorator {
+export function Get(path: string = ""): MethodDecorator {
   return (target: any, propertyKey: string | symbol) => {
-    const route = { method: 'GET', path, handler: propertyKey };
+    const route = { method: "GET", path, handler: propertyKey };
     RouteRegistry.registerRoute(target.constructor, route);
   };
 }
@@ -323,18 +360,21 @@ export function Get(path: string = ''): MethodDecorator {
 ```typescript
 // Smart CORS configuration based on environment
 export class SecurityConfigurator {
-  static configureCors(environment: string, customOptions?: CorsOptions): CorsOptions {
+  static configureCors(
+    environment: string,
+    customOptions?: CorsOptions,
+  ): CorsOptions {
     const defaults = {
       development: {
         origin: true,
         credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       },
       production: {
         origin: this.getAllowedOrigins(),
         credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE']
-      }
+        methods: ["GET", "POST", "PUT", "DELETE"],
+      },
     };
 
     return { ...defaults[environment], ...customOptions };
@@ -342,19 +382,25 @@ export class SecurityConfigurator {
 
   static configureHelmet(environment: string): HelmetOptions {
     return {
-      contentSecurityPolicy: environment === 'development' ? false : {
-        directives: {
-          defaultSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          scriptSrc: ["'self'"],
-          imgSrc: ["'self'", "data:", "https:"]
-        }
-      },
-      hsts: environment === 'production' ? {
-        maxAge: 31536000,
-        includeSubDomains: true,
-        preload: true
-      } : false
+      contentSecurityPolicy:
+        environment === "development"
+          ? false
+          : {
+              directives: {
+                defaultSrc: ["'self'"],
+                styleSrc: ["'self'", "'unsafe-inline'"],
+                scriptSrc: ["'self'"],
+                imgSrc: ["'self'", "data:", "https:"],
+              },
+            },
+      hsts:
+        environment === "production"
+          ? {
+              maxAge: 31536000,
+              includeSubDomains: true,
+              preload: true,
+            }
+          : false,
     };
   }
 }
@@ -366,7 +412,7 @@ export class SecurityConfigurator {
 export class ConfigurationMerger {
   static mergeWithDefaults(
     userOptions: HanApplicationOptions,
-    envInfo: EnvironmentInfo
+    envInfo: EnvironmentInfo,
   ): HanApplicationOptions {
     const defaults = this.getDefaultsForEnvironment(envInfo);
 
@@ -376,7 +422,10 @@ export class ConfigurationMerger {
       ...userOptions,
       cors: this.mergeCorsOptions(defaults.cors, userOptions.cors),
       helmet: this.mergeHelmetOptions(defaults.helmet, userOptions.helmet),
-      shutdownHooks: this.mergeShutdownOptions(defaults.shutdownHooks, userOptions.shutdownHooks)
+      shutdownHooks: this.mergeShutdownOptions(
+        defaults.shutdownHooks,
+        userOptions.shutdownHooks,
+      ),
     };
   }
 }
@@ -393,16 +442,21 @@ export class ConfigurationMerger {
 export class RequestProcessor {
   private interceptors: HanInterceptor[] = [];
 
-  async processRequest(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async processRequest(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     const startTime = Date.now();
     const traceId = this.generateTraceId(startTime);
 
     const context: InterceptorContext = {
-      req, res,
+      req,
+      res,
       method: req.method,
       path: req.path,
       startTime,
-      traceId
+      traceId,
     };
 
     try {
@@ -416,10 +470,9 @@ export class RequestProcessor {
       const response: InterceptorResponse = {
         statusCode: res.statusCode,
         data: result,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
       await this.executeAfterHooks(context, response);
-
     } catch (error) {
       await this.executeErrorHooks(context, error);
       next(error);
@@ -440,8 +493,9 @@ export class ResourceManager {
   }
 
   async cleanup(): Promise<void> {
-    const cleanupPromises = Array.from(this.resources.values())
-      .map(resource => this.safeDispose(resource));
+    const cleanupPromises = Array.from(this.resources.values()).map(
+      (resource) => this.safeDispose(resource),
+    );
 
     await Promise.allSettled(cleanupPromises);
     this.resources.clear();
@@ -449,11 +503,11 @@ export class ResourceManager {
 
   private async safeDispose(resource: Disposable): Promise<void> {
     try {
-      if (typeof resource.dispose === 'function') {
+      if (typeof resource.dispose === "function") {
         await resource.dispose();
       }
     } catch (error) {
-      console.warn('Resource cleanup error:', error);
+      console.warn("Resource cleanup error:", error);
     }
   }
 }
@@ -469,8 +523,14 @@ export class ResourceManager {
 // Base class for custom interceptors
 export abstract class BaseInterceptor implements HanInterceptor {
   abstract beforeHandle?(context: InterceptorContext): void | Promise<void>;
-  abstract afterHandle?(context: InterceptorContext, response: InterceptorResponse): void | Promise<void>;
-  abstract onError?(context: InterceptorContext, error: any): void | Promise<void>;
+  abstract afterHandle?(
+    context: InterceptorContext,
+    response: InterceptorResponse,
+  ): void | Promise<void>;
+  abstract onError?(
+    context: InterceptorContext,
+    error: any,
+  ): void | Promise<void>;
 }
 
 // Example custom interceptor
@@ -479,7 +539,10 @@ export class DatabaseTransactionInterceptor extends BaseInterceptor {
     context.req.transaction = database.beginTransaction();
   }
 
-  afterHandle(context: InterceptorContext, response: InterceptorResponse): void {
+  afterHandle(
+    context: InterceptorContext,
+    response: InterceptorResponse,
+  ): void {
     if (response.statusCode < 400) {
       context.req.transaction.commit();
     } else {
@@ -520,7 +583,9 @@ export class ProviderRegistry {
 
 ```typescript
 export class TestingModule {
-  static async createTestingModule(metadata: TestModuleMetadata): Promise<TestingModule> {
+  static async createTestingModule(
+    metadata: TestModuleMetadata,
+  ): Promise<TestingModule> {
     const module = new TestingModule();
     await module.compile(metadata);
     return module;
@@ -538,18 +603,18 @@ export class TestingModule {
 }
 
 // Example usage
-describe('UserController', () => {
+describe("UserController", () => {
   let controller: UserController;
   let service: MockType<UserService>;
 
   beforeEach(async () => {
     const module = await TestingModule.createTestingModule({
       controllers: [UserController],
-      providers: [UserService]
+      providers: [UserService],
     });
 
     controller = module.get(UserController);
-    service = module.createMock('UserService');
+    service = module.createMock("UserService");
   });
 });
 ```
@@ -565,14 +630,22 @@ export class MetricsCollector {
   private metrics = {
     requests: new Map<string, number>(),
     responseTimes: new Map<string, number[]>(),
-    errors: new Map<string, number>()
+    errors: new Map<string, number>(),
   };
 
-  recordRequest(method: string, path: string, duration: number, statusCode: number): void {
+  recordRequest(
+    method: string,
+    path: string,
+    duration: number,
+    statusCode: number,
+  ): void {
     const route = `${method} ${path}`;
 
     // Count requests
-    this.metrics.requests.set(route, (this.metrics.requests.get(route) || 0) + 1);
+    this.metrics.requests.set(
+      route,
+      (this.metrics.requests.get(route) || 0) + 1,
+    );
 
     // Track response times
     if (!this.metrics.responseTimes.has(route)) {
@@ -588,10 +661,13 @@ export class MetricsCollector {
 
   getMetrics(): MetricsSummary {
     return {
-      totalRequests: Array.from(this.metrics.requests.values()).reduce((a, b) => a + b, 0),
+      totalRequests: Array.from(this.metrics.requests.values()).reduce(
+        (a, b) => a + b,
+        0,
+      ),
       averageResponseTime: this.calculateAverageResponseTime(),
       errorRate: this.calculateErrorRate(),
-      routeMetrics: this.getRouteMetrics()
+      routeMetrics: this.getRouteMetrics(),
     };
   }
 }
@@ -605,14 +681,14 @@ export class MetricsCollector {
 
 ```typescript
 // NestJS compatibility decorators
-export { Injectable } from './decorators/injectable.decorator';
-export { Controller } from './decorators/controller.decorator';
-export { Get, Post, Put, Delete, Patch } from './decorators/http.decorator';
-export { Module } from './decorators/module.decorator';
+export { Injectable } from "./decorators/injectable.decorator";
+export { Controller } from "./decorators/controller.decorator";
+export { Get, Post, Put, Delete, Patch } from "./decorators/http.decorator";
+export { Module } from "./decorators/module.decorator";
 
 // Additional Han Framework enhancements
-export { AutoController } from './decorators/auto-controller.decorator';
-export { SmartModule } from './decorators/smart-module.decorator';
+export { AutoController } from "./decorators/auto-controller.decorator";
+export { SmartModule } from "./decorators/smart-module.decorator";
 ```
 
 ### Migration Guide
@@ -624,8 +700,8 @@ export { SmartModule } from './decorators/smart-module.decorator';
 
 ```typescript
 // Before (NestJS)
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -636,7 +712,7 @@ async function bootstrap() {
 }
 
 // After (Han Framework)
-import { HanFactory } from 'han-framework';
+import { HanFactory } from "han-framework";
 
 async function bootstrap() {
   const app = await HanFactory.create(AppModule);
@@ -662,14 +738,19 @@ export interface HanApplicationOptions {
 
 export interface ShutdownHooksOptions {
   enabled?: boolean;
-  signals?: Array<'SIGINT' | 'SIGTERM' | 'SIGKILL'>;
+  signals?: Array<"SIGINT" | "SIGTERM" | "SIGKILL">;
   gracefulTimeout?: number;
 }
 
 export interface HanApplication {
   app: Express;
   listen(port: number | string, callback?: () => void): Promise<any>;
-  useGlobalInterceptors(...interceptors: (HanInterceptor | (new (...args: any[]) => HanInterceptor))[]): HanApplication;
+  useGlobalInterceptors(
+    ...interceptors: (
+      | HanInterceptor
+      | (new (...args: any[]) => HanInterceptor)
+    )[]
+  ): HanApplication;
   onApplicationShutdown(callback: () => Promise<void> | void): void;
   close(): Promise<void>;
   init(): Promise<void>;
@@ -682,12 +763,12 @@ export interface HanApplication {
 
 ### Framework Overhead
 
-| Metric | Han Framework | NestJS | Express |
-|--------|---------------|---------|---------|
-| **Startup Time** | 150ms | 300ms | 50ms |
-| **Memory Usage** | 45MB | 65MB | 25MB |
-| **Request Throughput** | 8,500 req/s | 7,200 req/s | 12,000 req/s |
-| **Response Time (p95)** | 15ms | 22ms | 8ms |
+| Metric                  | Han Framework | NestJS      | Express      |
+| ----------------------- | ------------- | ----------- | ------------ |
+| **Startup Time**        | 150ms         | 300ms       | 50ms         |
+| **Memory Usage**        | 45MB          | 65MB        | 25MB         |
+| **Request Throughput**  | 8,500 req/s   | 7,200 req/s | 12,000 req/s |
+| **Response Time (p95)** | 15ms          | 22ms        | 8ms          |
 
 ### Optimization Strategies
 

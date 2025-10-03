@@ -1,14 +1,14 @@
 export const METADATA_KEYS = {
-  CONTROLLER: Symbol('controller'),
-  ROUTES: Symbol('routes'),
-  PARAMS: Symbol('params'),
-  MIDDLEWARE: Symbol('middleware'),
-  INJECTABLE: Symbol('injectable'),
-  MODULE: Symbol('module'),
+  CONTROLLER: Symbol("controller"),
+  ROUTES: Symbol("routes"),
+  PARAMS: Symbol("params"),
+  MIDDLEWARE: Symbol("middleware"),
+  INJECTABLE: Symbol("injectable"),
+  MODULE: Symbol("module"),
 } as const;
 
 export interface RouteMetadata {
-  method: 'get' | 'post' | 'put' | 'delete' | 'patch';
+  method: "get" | "post" | "put" | "delete" | "patch";
   path: string;
   methodName: string;
   middleware?: any[];

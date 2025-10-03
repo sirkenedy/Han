@@ -13,20 +13,22 @@ The main factory class for creating Han Framework applications.
 Creates a new Han Framework application instance.
 
 **Parameters:**
+
 - `moduleClass` (class): The root module class decorated with `@Module`
 - `options` (HanApplicationOptions, optional): Configuration options
 
 **Returns:** `Promise<HanApplication>`
 
 **Example:**
+
 ```typescript
-import { HanFactory } from 'han-framework';
-import { AppModule } from './app.module';
+import { HanFactory } from "han-framework";
+import { AppModule } from "./app.module";
 
 const app = await HanFactory.create(AppModule, {
   cors: true,
   helmet: true,
-  globalPrefix: '/api/v1'
+  globalPrefix: "/api/v1",
 });
 ```
 
@@ -35,16 +37,18 @@ const app = await HanFactory.create(AppModule, {
 Creates a microservice application (TCP/Redis/NATS transport).
 
 **Parameters:**
+
 - `moduleClass` (class): The root module class
 - `options` (MicroserviceOptions): Transport and connection options
 
 **Returns:** `Promise<HanMicroservice>`
 
 **Example:**
+
 ```typescript
 const microservice = await HanFactory.createMicroservice(AppModule, {
   transport: Transport.TCP,
-  options: { port: 3001 }
+  options: { port: 3001 },
 });
 ```
 
@@ -57,11 +61,12 @@ The main application interface providing all framework functionality.
 ### Properties
 
 #### `app: Express`
+
 Direct access to the underlying Express application instance.
 
 ```typescript
 const app = await HanFactory.create(AppModule);
-app.app.use('/custom', customMiddleware);
+app.app.use("/custom", customMiddleware);
 ```
 
 ### Methods
@@ -71,19 +76,21 @@ app.app.use('/custom', customMiddleware);
 Starts the HTTP server and begins listening for requests.
 
 **Parameters:**
+
 - `port` (number | string): Port number or named pipe
 - `callback` (function, optional): Callback function executed when server starts
 
 **Returns:** `Promise<any>`
 
 **Examples:**
+
 ```typescript
 // Basic usage
 await app.listen(3000);
 
 // With callback
 await app.listen(3000, () => {
-  console.log('Server is running!');
+  console.log("Server is running!");
 });
 
 // Environment-based port
@@ -96,11 +103,13 @@ await app.listen(port);
 Registers global interceptors that apply to all routes.
 
 **Parameters:**
+
 - `interceptors` (HanInterceptor[]): Array of interceptor classes or instances
 
 **Returns:** `HanApplication` (chainable)
 
 **Examples:**
+
 ```typescript
 // Class-based interceptors (auto-instantiated)
 app.useGlobalInterceptors(LoggingInterceptor, AuthInterceptor);
@@ -108,14 +117,11 @@ app.useGlobalInterceptors(LoggingInterceptor, AuthInterceptor);
 // Instance-based interceptors (with configuration)
 app.useGlobalInterceptors(
   new PerformanceInterceptor(200),
-  new RateLimitInterceptor({ limit: 100 })
+  new RateLimitInterceptor({ limit: 100 }),
 );
 
 // Mixed usage
-app.useGlobalInterceptors(
-  LoggingInterceptor,
-  new PerformanceInterceptor(150)
-);
+app.useGlobalInterceptors(LoggingInterceptor, new PerformanceInterceptor(150));
 ```
 
 #### `onApplicationShutdown(callback)`
@@ -123,25 +129,23 @@ app.useGlobalInterceptors(
 Registers a callback to execute during graceful shutdown.
 
 **Parameters:**
+
 - `callback` (function): Sync or async function to execute on shutdown
 
 **Returns:** `void`
 
 **Examples:**
+
 ```typescript
 // Database cleanup
 app.onApplicationShutdown(async () => {
   await database.close();
-  console.log('Database connections closed');
+  console.log("Database connections closed");
 });
 
 // Multiple cleanup operations
 app.onApplicationShutdown(async () => {
-  await Promise.all([
-    redis.quit(),
-    mongodb.close(),
-    queue.disconnect()
-  ]);
+  await Promise.all([redis.quit(), mongodb.close(), queue.disconnect()]);
 });
 
 // Synchronous cleanup
@@ -186,12 +190,13 @@ app.enableCors();
 Sets a global prefix for all routes.
 
 **Parameters:**
+
 - `prefix` (string): URL prefix (e.g., '/api', '/v1')
 
 **Returns:** `HanApplication` (chainable)
 
 ```typescript
-app.useGlobalPrefix('/api/v1');
+app.useGlobalPrefix("/api/v1");
 ```
 
 #### `getUrl()`
@@ -240,18 +245,18 @@ interface HanApplicationOptions {
 ```typescript
 // Simple enable/disable
 const app = await HanFactory.create(AppModule, {
-  cors: true  // Enables with smart defaults
+  cors: true, // Enables with smart defaults
 });
 
 // Advanced configuration
 const app = await HanFactory.create(AppModule, {
   cors: {
-    origin: ['https://yourdomain.com', 'https://admin.yourdomain.com'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: ["https://yourdomain.com", "https://admin.yourdomain.com"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-    maxAge: 86400  // 24 hours
-  }
+    maxAge: 86400, // 24 hours
+  },
 });
 ```
 
@@ -260,7 +265,7 @@ const app = await HanFactory.create(AppModule, {
 ```typescript
 // Simple enable/disable
 const app = await HanFactory.create(AppModule, {
-  helmet: true  // Enables with production-ready defaults
+  helmet: true, // Enables with production-ready defaults
 });
 
 // Advanced configuration
@@ -271,15 +276,15 @@ const app = await HanFactory.create(AppModule, {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         scriptSrc: ["'self'", "https://trusted-cdn.com"],
-        imgSrc: ["'self'", "data:", "https:"]
-      }
+        imgSrc: ["'self'", "data:", "https:"],
+      },
     },
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,
-      preload: true
-    }
-  }
+      preload: true,
+    },
+  },
 });
 ```
 
@@ -288,10 +293,10 @@ const app = await HanFactory.create(AppModule, {
 ```typescript
 const app = await HanFactory.create(AppModule, {
   shutdownHooks: {
-    enabled: true,                          // Enable graceful shutdown (default: true)
-    signals: ['SIGINT', 'SIGTERM'],        // Signals to handle
-    gracefulTimeout: 15000                  // 15 second timeout
-  }
+    enabled: true, // Enable graceful shutdown (default: true)
+    signals: ["SIGINT", "SIGTERM"], // Signals to handle
+    gracefulTimeout: 15000, // 15 second timeout
+  },
 });
 ```
 
@@ -306,24 +311,26 @@ const app = await HanFactory.create(AppModule, {
 Defines a module with its dependencies, controllers, and providers.
 
 **Parameters:**
+
 - `metadata` (ModuleMetadata): Module configuration
 
 ```typescript
 interface ModuleMetadata {
-  imports?: any[];      // Modules to import
-  controllers?: any[];  // Controllers to register
-  providers?: any[];    // Providers for dependency injection
-  exports?: any[];      // Providers to export to other modules
+  imports?: any[]; // Modules to import
+  controllers?: any[]; // Controllers to register
+  providers?: any[]; // Providers for dependency injection
+  exports?: any[]; // Providers to export to other modules
 }
 ```
 
 **Example:**
+
 ```typescript
 @Module({
   imports: [DatabaseModule, AuthModule],
   controllers: [UserController, AdminController],
   providers: [UserService, EmailService, ConfigService],
-  exports: [UserService, ConfigService]
+  exports: [UserService, ConfigService],
 })
 export class UserModule {}
 ```
@@ -335,10 +342,11 @@ export class UserModule {}
 Defines a controller class with an optional route prefix.
 
 **Parameters:**
+
 - `prefix` (string, optional): Route prefix for all methods in this controller
 
 ```typescript
-@Controller('users')
+@Controller("users")
 export class UserController {
   // Routes will be prefixed with '/users'
 }
@@ -352,33 +360,38 @@ export class AppController {
 ### HTTP Method Decorators
 
 #### `@Get(path?)`
+
 #### `@Post(path?)`
+
 #### `@Put(path?)`
+
 #### `@Delete(path?)`
+
 #### `@Patch(path?)`
 
 Define HTTP route handlers.
 
 **Parameters:**
+
 - `path` (string, optional): Route path (default: empty string)
 
 ```typescript
-@Controller('users')
+@Controller("users")
 export class UserController {
-  @Get()              // GET /users
-  findAll() { }
+  @Get() // GET /users
+  findAll() {}
 
-  @Get(':id')         // GET /users/:id
-  findOne() { }
+  @Get(":id") // GET /users/:id
+  findOne() {}
 
-  @Post()             // POST /users
-  create() { }
+  @Post() // POST /users
+  create() {}
 
-  @Put(':id')         // PUT /users/:id
-  update() { }
+  @Put(":id") // PUT /users/:id
+  update() {}
 
-  @Delete(':id')      // DELETE /users/:id
-  remove() { }
+  @Delete(":id") // DELETE /users/:id
+  remove() {}
 }
 ```
 
@@ -462,7 +475,7 @@ Marks a class as injectable for dependency injection.
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly emailService: EmailService
+    private readonly emailService: EmailService,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -480,7 +493,10 @@ export class UserService {
 ```typescript
 interface HanInterceptor {
   beforeHandle?(context: InterceptorContext): void | Promise<void>;
-  afterHandle?(context: InterceptorContext, response: InterceptorResponse): void | Promise<void>;
+  afterHandle?(
+    context: InterceptorContext,
+    response: InterceptorResponse,
+  ): void | Promise<void>;
   onError?(context: InterceptorContext, error: any): void | Promise<void>;
 }
 ```
@@ -489,12 +505,12 @@ interface HanInterceptor {
 
 ```typescript
 interface InterceptorContext {
-  req: Request;           // Express request object
-  res: Response;          // Express response object
-  method: string;         // HTTP method (GET, POST, etc.)
-  path: string;           // Request path
-  startTime: number;      // Request start timestamp
-  traceId: string;        // Unique request trace ID
+  req: Request; // Express request object
+  res: Response; // Express response object
+  method: string; // HTTP method (GET, POST, etc.)
+  path: string; // Request path
+  startTime: number; // Request start timestamp
+  traceId: string; // Unique request trace ID
 }
 ```
 
@@ -502,9 +518,9 @@ interface InterceptorContext {
 
 ```typescript
 interface InterceptorResponse {
-  statusCode: number;     // HTTP response status code
-  data?: any;            // Response data
-  duration: number;       // Request duration in milliseconds
+  statusCode: number; // HTTP response status code
+  data?: any; // Response data
+  duration: number; // Request duration in milliseconds
 }
 ```
 
@@ -513,14 +529,17 @@ interface InterceptorResponse {
 Abstract base class for creating custom interceptors.
 
 ```typescript
-import { BaseInterceptor } from 'han-framework';
+import { BaseInterceptor } from "han-framework";
 
 export class CustomInterceptor extends BaseInterceptor {
   beforeHandle(context: InterceptorContext): void {
     console.log(`Starting ${context.method} ${context.path}`);
   }
 
-  afterHandle(context: InterceptorContext, response: InterceptorResponse): void {
+  afterHandle(
+    context: InterceptorContext,
+    response: InterceptorResponse,
+  ): void {
     console.log(`Completed in ${response.duration}ms`);
   }
 
@@ -541,6 +560,7 @@ app.useGlobalInterceptors(LoggingInterceptor);
 ```
 
 **Output:**
+
 ```
 📥 GET /users - 192.168.1.1 - [trace_1234567890_abc] - Started
 📤 GET /users - 200 ✅ - 45ms - [trace_1234567890_abc]
@@ -555,6 +575,7 @@ app.useGlobalInterceptors(new PerformanceInterceptor(200)); // 200ms threshold
 ```
 
 **Features:**
+
 - Adds `X-Response-Time` header
 - Adds `X-Trace-ID` header
 - Warns about slow requests
@@ -567,7 +588,7 @@ app.useGlobalInterceptors(new PerformanceInterceptor(200)); // 200ms threshold
 ### Environment Detection
 
 ```typescript
-import { EnvironmentDetector } from 'han-framework';
+import { EnvironmentDetector } from "han-framework";
 
 const envInfo = EnvironmentDetector.detect();
 console.log(envInfo);
@@ -582,21 +603,21 @@ console.log(envInfo);
 ### Route Analytics
 
 ```typescript
-import { RouteMapper } from 'han-framework';
+import { RouteMapper } from "han-framework";
 
 // Display comprehensive route analytics
-RouteMapper.displayRoutes('http://localhost:3000', 'development');
+RouteMapper.displayRoutes("http://localhost:3000", "development");
 ```
 
 ### Logger
 
 ```typescript
-import { Logger } from 'han-framework';
+import { Logger } from "han-framework";
 
-Logger.info('Application started');
-Logger.warn('This is a warning');
-Logger.error('An error occurred', error);
-Logger.debug('Debug information');
+Logger.info("Application started");
+Logger.warn("This is a warning");
+Logger.error("An error occurred", error);
+Logger.debug("Debug information");
 ```
 
 ---
@@ -608,9 +629,9 @@ Logger.debug('Debug information');
 Create isolated testing environments for your modules.
 
 ```typescript
-import { TestingModule } from 'han-framework';
+import { TestingModule } from "han-framework";
 
-describe('UserController', () => {
+describe("UserController", () => {
   let app: TestingModule;
   let controller: UserController;
   let service: UserService;
@@ -618,7 +639,7 @@ describe('UserController', () => {
   beforeEach(async () => {
     app = await TestingModule.createTestingModule({
       controllers: [UserController],
-      providers: [UserService]
+      providers: [UserService],
     });
 
     controller = app.get(UserController);
@@ -629,7 +650,7 @@ describe('UserController', () => {
     await app.close();
   });
 
-  it('should find all users', async () => {
+  it("should find all users", async () => {
     const result = await controller.findAll();
     expect(result).toBeDefined();
   });
@@ -641,8 +662,8 @@ describe('UserController', () => {
 ```typescript
 const mockUserService = {
   findAll: jest.fn().mockResolvedValue([]),
-  findOne: jest.fn().mockResolvedValue({ id: 1, name: 'John' }),
-  create: jest.fn().mockResolvedValue({ id: 1, name: 'John' })
+  findOne: jest.fn().mockResolvedValue({ id: 1, name: "John" }),
+  create: jest.fn().mockResolvedValue({ id: 1, name: "John" }),
 };
 
 const app = await TestingModule.createTestingModule({
@@ -650,9 +671,9 @@ const app = await TestingModule.createTestingModule({
   providers: [
     {
       provide: UserService,
-      useValue: mockUserService
-    }
-  ]
+      useValue: mockUserService,
+    },
+  ],
 });
 ```
 
@@ -663,7 +684,7 @@ const app = await TestingModule.createTestingModule({
 ### Global Error Filter
 
 ```typescript
-import { ExceptionFilter } from 'han-framework';
+import { ExceptionFilter } from "han-framework";
 
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: any, context: ExecutionContext): void {
@@ -674,7 +695,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: context.switchToHttp().getRequest().url,
-      message: exception.message
+      message: exception.message,
     });
   }
 }

@@ -11,11 +11,13 @@ npm install -g @han/cli
 ## Commands
 
 ### Create New Project
+
 ```bash
 han new my-project
 ```
 
 ### Generate Code
+
 ```bash
 # Generate a controller
 han generate controller user
@@ -42,6 +44,7 @@ han g class user
 ```
 
 ### Build Project
+
 ```bash
 han build
 han build --watch
@@ -49,6 +52,7 @@ han build --webpack
 ```
 
 ### Start Project
+
 ```bash
 han start
 han start --watch
@@ -57,6 +61,7 @@ han start --port 4000
 ```
 
 ### Project Info
+
 ```bash
 han info
 ```

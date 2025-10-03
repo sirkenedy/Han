@@ -92,14 +92,14 @@ Update `package.json`:
 Create `src/main.ts`:
 
 ```typescript
-import 'reflect-metadata';
-import { HanFactory } from 'han-framework';
-import { AppModule } from './app.module';
+import "reflect-metadata";
+import { HanFactory } from "han-framework";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await HanFactory.create(AppModule, {
     cors: true,
-    globalPrefix: '/api'
+    globalPrefix: "/api",
   });
 
   const port = process.env.PORT || 3000;
@@ -116,7 +116,7 @@ bootstrap().catch(console.error);
 Create `src/app.controller.ts`:
 
 ```typescript
-import { Controller, Get, Post, Body, Param } from 'han-framework';
+import { Controller, Get, Post, Body, Param } from "han-framework";
 
 interface User {
   id: number;
@@ -127,49 +127,49 @@ interface User {
 @Controller()
 export class AppController {
   private users: User[] = [
-    { id: 1, name: 'John Doe', email: 'john@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com' }
+    { id: 1, name: "John Doe", email: "john@example.com" },
+    { id: 2, name: "Jane Smith", email: "jane@example.com" },
   ];
 
   @Get()
   getHello() {
     return {
-      message: 'Welcome to Han Framework!',
-      version: '1.0.0'
+      message: "Welcome to Han Framework!",
+      version: "1.0.0",
     };
   }
 
-  @Get('users')
+  @Get("users")
   getUsers() {
     return {
       data: this.users,
-      count: this.users.length
+      count: this.users.length,
     };
   }
 
-  @Get('users/:id')
-  getUser(@Param('id') id: string) {
-    const user = this.users.find(u => u.id === parseInt(id));
+  @Get("users/:id")
+  getUser(@Param("id") id: string) {
+    const user = this.users.find((u) => u.id === parseInt(id));
 
     if (!user) {
-      return { error: 'User not found' };
+      return { error: "User not found" };
     }
 
     return { data: user };
   }
 
-  @Post('users')
-  createUser(@Body() userData: Omit<User, 'id'>) {
+  @Post("users")
+  createUser(@Body() userData: Omit<User, "id">) {
     const newUser = {
-      id: Math.max(...this.users.map(u => u.id)) + 1,
-      ...userData
+      id: Math.max(...this.users.map((u) => u.id)) + 1,
+      ...userData,
     };
 
     this.users.push(newUser);
 
     return {
-      message: 'User created successfully',
-      data: newUser
+      message: "User created successfully",
+      data: newUser,
     };
   }
 }
@@ -180,7 +180,7 @@ export class AppController {
 Create `src/app.service.ts`:
 
 ```typescript
-import { Injectable } from 'han-framework';
+import { Injectable } from "han-framework";
 
 interface User {
   id: number;
@@ -191,12 +191,12 @@ interface User {
 @Injectable()
 export class AppService {
   private users: User[] = [
-    { id: 1, name: 'John Doe', email: 'john@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com' }
+    { id: 1, name: "John Doe", email: "john@example.com" },
+    { id: 2, name: "Jane Smith", email: "jane@example.com" },
   ];
 
   getHello(): string {
-    return 'Hello from Han Framework!';
+    return "Hello from Han Framework!";
   }
 
   getAllUsers(): User[] {
@@ -204,13 +204,13 @@ export class AppService {
   }
 
   getUserById(id: number): User | undefined {
-    return this.users.find(user => user.id === id);
+    return this.users.find((user) => user.id === id);
   }
 
-  createUser(userData: Omit<User, 'id'>): User {
+  createUser(userData: Omit<User, "id">): User {
     const newUser = {
-      id: Math.max(...this.users.map(u => u.id)) + 1,
-      ...userData
+      id: Math.max(...this.users.map((u) => u.id)) + 1,
+      ...userData,
     };
 
     this.users.push(newUser);
@@ -218,7 +218,7 @@ export class AppService {
   }
 
   updateUser(id: number, userData: Partial<User>): User | undefined {
-    const userIndex = this.users.findIndex(user => user.id === id);
+    const userIndex = this.users.findIndex((user) => user.id === id);
 
     if (userIndex === -1) {
       return undefined;
@@ -229,7 +229,7 @@ export class AppService {
   }
 
   deleteUser(id: number): boolean {
-    const userIndex = this.users.findIndex(user => user.id === id);
+    const userIndex = this.users.findIndex((user) => user.id === id);
 
     if (userIndex === -1) {
       return false;
@@ -246,8 +246,8 @@ export class AppService {
 Update `src/app.controller.ts`:
 
 ```typescript
-import { Controller, Get, Post, Put, Delete, Body, Param } from 'han-framework';
-import { AppService } from './app.service';
+import { Controller, Get, Post, Put, Delete, Body, Param } from "han-framework";
+import { AppService } from "./app.service";
 
 @Controller()
 export class AppController {
@@ -257,66 +257,66 @@ export class AppController {
   getHello() {
     return {
       message: this.appService.getHello(),
-      version: '1.0.0'
+      version: "1.0.0",
     };
   }
 
-  @Get('users')
+  @Get("users")
   getUsers() {
     const users = this.appService.getAllUsers();
     return {
       data: users,
-      count: users.length
+      count: users.length,
     };
   }
 
-  @Get('users/:id')
-  getUser(@Param('id') id: string) {
+  @Get("users/:id")
+  getUser(@Param("id") id: string) {
     const user = this.appService.getUserById(parseInt(id));
 
     if (!user) {
-      return { error: 'User not found' };
+      return { error: "User not found" };
     }
 
     return { data: user };
   }
 
-  @Post('users')
+  @Post("users")
   createUser(@Body() userData: any) {
     try {
       const newUser = this.appService.createUser(userData);
       return {
-        message: 'User created successfully',
-        data: newUser
+        message: "User created successfully",
+        data: newUser,
       };
     } catch (error) {
-      return { error: 'Failed to create user' };
+      return { error: "Failed to create user" };
     }
   }
 
-  @Put('users/:id')
-  updateUser(@Param('id') id: string, @Body() userData: any) {
+  @Put("users/:id")
+  updateUser(@Param("id") id: string, @Body() userData: any) {
     const updatedUser = this.appService.updateUser(parseInt(id), userData);
 
     if (!updatedUser) {
-      return { error: 'User not found' };
+      return { error: "User not found" };
     }
 
     return {
-      message: 'User updated successfully',
-      data: updatedUser
+      message: "User updated successfully",
+      data: updatedUser,
     };
   }
 
-  @Delete('users/:id')
-  deleteUser(@Param('id') id: string) {
+  @Delete("users/:id")
+  deleteUser(@Param("id") id: string) {
     const success = this.appService.deleteUser(parseInt(id));
 
     if (!success) {
-      return { error: 'User not found' };
+      return { error: "User not found" };
     }
 
-    return { message: 'User deleted successfully' };
+    return { message: "User deleted successfully" };
   }
 }
 ```
@@ -326,13 +326,13 @@ export class AppController {
 Create `src/app.module.ts`:
 
 ```typescript
-import { Module } from 'han-framework';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Module } from "han-framework";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
 
 @Module({
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService],
 })
 export class AppModule {}
 ```
@@ -424,6 +424,7 @@ curl -X POST http://localhost:3000/users \
 ### Expected Responses
 
 **GET /**
+
 ```json
 {
   "message": "Welcome to Han Framework! 🚀",
@@ -441,6 +442,7 @@ curl -X POST http://localhost:3000/users \
 ```
 
 **GET /health**
+
 ```json
 {
   "status": "healthy",
@@ -456,6 +458,7 @@ curl -X POST http://localhost:3000/users \
 ```
 
 **GET /users**
+
 ```json
 {
   "data": [
@@ -477,6 +480,7 @@ curl -X POST http://localhost:3000/users \
 ```
 
 **POST /users**
+
 ```json
 {
   "message": "User created successfully",
@@ -499,14 +503,18 @@ curl -X POST http://localhost:3000/users \
 Update `src/main.ts`:
 
 ```typescript
-import 'reflect-metadata';
-import { HanFactory, LoggingInterceptor, PerformanceInterceptor } from 'han-framework';
-import { AppModule } from './app.module';
+import "reflect-metadata";
+import {
+  HanFactory,
+  LoggingInterceptor,
+  PerformanceInterceptor,
+} from "han-framework";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await HanFactory.create(AppModule, {
     cors: true,
-    globalPrefix: '/api'
+    globalPrefix: "/api",
   });
 
   // Add global interceptors
@@ -528,20 +536,20 @@ bootstrap().catch(console.error);
 async function bootstrap() {
   const app = await HanFactory.create(AppModule, {
     cors: true,
-    globalPrefix: '/api'
+    globalPrefix: "/api",
   });
 
   // Register shutdown hooks
   app.onApplicationShutdown(async () => {
-    console.log('🗄️  Closing database connections...');
+    console.log("🗄️  Closing database connections...");
     // await database.close();
-    console.log('✅ Database connections closed');
+    console.log("✅ Database connections closed");
   });
 
   app.onApplicationShutdown(() => {
-    console.log('🧹 Clearing application cache...');
+    console.log("🧹 Clearing application cache...");
     // cache.clear();
-    console.log('✅ Cache cleared');
+    console.log("✅ Cache cleared");
   });
 
   const port = process.env.PORT || 3000;
@@ -554,22 +562,36 @@ async function bootstrap() {
 Create `src/interceptors/timing.interceptor.ts`:
 
 ```typescript
-import { BaseInterceptor, InterceptorContext, InterceptorResponse } from 'han-framework';
+import {
+  BaseInterceptor,
+  InterceptorContext,
+  InterceptorResponse,
+} from "han-framework";
 
 export class TimingInterceptor extends BaseInterceptor {
   beforeHandle(context: InterceptorContext): void {
-    console.log(`⏰ [${context.traceId}] Starting ${context.method} ${context.path}`);
+    console.log(
+      `⏰ [${context.traceId}] Starting ${context.method} ${context.path}`,
+    );
   }
 
-  afterHandle(context: InterceptorContext, response: InterceptorResponse): void {
+  afterHandle(
+    context: InterceptorContext,
+    response: InterceptorResponse,
+  ): void {
     const { method, path, traceId } = context;
     const { duration, statusCode } = response;
 
-    console.log(`⏱️  [${traceId}] ${method} ${path} completed in ${duration}ms (${statusCode})`);
+    console.log(
+      `⏱️  [${traceId}] ${method} ${path} completed in ${duration}ms (${statusCode})`,
+    );
   }
 
   onError(context: InterceptorContext, error: any): void {
-    console.error(`💥 [${context.traceId}] Error in ${context.method} ${context.path}:`, error.message);
+    console.error(
+      `💥 [${context.traceId}] Error in ${context.method} ${context.path}:`,
+      error.message,
+    );
   }
 }
 ```
@@ -577,7 +599,7 @@ export class TimingInterceptor extends BaseInterceptor {
 Register it in `main.ts`:
 
 ```typescript
-import { TimingInterceptor } from './interceptors/timing.interceptor';
+import { TimingInterceptor } from "./interceptors/timing.interceptor";
 
 app.useGlobalInterceptors(new TimingInterceptor());
 ```
@@ -622,11 +644,13 @@ You've successfully created your first Han Framework application! You now have:
 Now that you have a basic application running, you can explore more advanced features:
 
 ### Learn More
+
 - **[API Reference](./API_REFERENCE.md)** - Complete API documentation
 - **[Architecture Guide](../HAN_FRAMEWORK.md)** - Deep dive into framework internals
 - **[Lifecycle Management](./LIFECYCLE_MANAGEMENT.md)** - Advanced shutdown and cleanup
 
 ### Add More Features
+
 - **Database Integration** - Connect to PostgreSQL, MongoDB, etc.
 - **Authentication & Authorization** - JWT, OAuth, role-based access
 - **Validation** - Request/response validation with DTOs
@@ -634,6 +658,7 @@ Now that you have a basic application running, you can explore more advanced fea
 - **Microservices** - Build distributed applications
 
 ### Deployment
+
 - **Docker** - Containerize your application
 - **Kubernetes** - Deploy to Kubernetes clusters
 - **Cloud Platforms** - Deploy to AWS, GCP, Azure, Heroku

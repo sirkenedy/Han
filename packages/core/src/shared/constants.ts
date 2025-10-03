@@ -10,16 +10,16 @@ export const HTTP_STATUS = {
 } as const;
 
 export const GITHUB_EVENTS = {
-  PUSH: 'push',
-  PULL_REQUEST: 'pull_request',
-  RELEASE: 'release',
+  PUSH: "push",
+  PULL_REQUEST: "pull_request",
+  RELEASE: "release",
 } as const;
 
 export const DEPLOYMENT_STATUS = {
-  PENDING: 'pending',
-  IN_PROGRESS: 'in_progress',
-  SUCCESS: 'success',
-  FAILED: 'failed',
+  PENDING: "pending",
+  IN_PROGRESS: "in_progress",
+  SUCCESS: "success",
+  FAILED: "failed",
 } as const;
 
 export const DEFAULT_PORTS = {

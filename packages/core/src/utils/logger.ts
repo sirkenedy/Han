@@ -1,4 +1,4 @@
-import { ILogger } from '../interfaces';
+import { ILogger } from "../interfaces";
 
 export class Logger implements ILogger {
   private static formatMessage(level: string, message: string): string {
@@ -7,23 +7,23 @@ export class Logger implements ILogger {
   }
 
   static info(message: string): void {
-    console.log(this.formatMessage('info', message));
+    console.log(this.formatMessage("info", message));
   }
 
   static error(message: string, error?: Error): void {
-    console.error(this.formatMessage('error', message));
+    console.error(this.formatMessage("error", message));
     if (error) {
       console.error(error.stack);
     }
   }
 
   static warn(message: string): void {
-    console.warn(this.formatMessage('warn', message));
+    console.warn(this.formatMessage("warn", message));
   }
 
   static debug(message: string): void {
-    if (process.env.NODE_ENV === 'development') {
-      console.debug(this.formatMessage('debug', message));
+    if (process.env.NODE_ENV === "development") {
+      console.debug(this.formatMessage("debug", message));
     }
   }
 

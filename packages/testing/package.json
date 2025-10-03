@@ -1,9 +1,12 @@
 {
   "name": "han-prev-testing",
-  "version": "1.0.15",
+  "version": "1.0.17",
   "description": "Testing framework for Han Framework with DI support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "han-test": "./bin/test-runner.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -33,8 +36,12 @@
   },
   "files": [
     "dist",
+    "bin",
     "README.md"
   ],
+  "dependencies": {
+    "glob": "^10.3.0"
+  },
   "peerDependencies": {
     "han-prev-core": "^1.0.13"
   },

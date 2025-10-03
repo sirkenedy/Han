@@ -1,50 +1,66 @@
-import { MetadataStorage } from './metadata';
+import { MetadataStorage } from "./metadata";
 
 export interface ParamMetadata {
-  type: 'body' | 'param' | 'query' | 'headers';
+  type: "body" | "param" | "query" | "headers";
   key?: string | undefined;
   index: number;
 }
 
 export function Body(key?: string): ParameterDecorator {
-  return function (target: any, propertyKey: string | symbol | undefined, parameterIndex: number) {
+  return function (
+    target: any,
+    propertyKey: string | symbol | undefined,
+    parameterIndex: number,
+  ) {
     const metadata: ParamMetadata = {
-      type: 'body',
+      type: "body",
       key,
-      index: parameterIndex
+      index: parameterIndex,
     };
     MetadataStorage.addParam(target, propertyKey as string, metadata);
   };
 }
 
 export function Param(key?: string): ParameterDecorator {
-  return function (target: any, propertyKey: string | symbol | undefined, parameterIndex: number) {
+  return function (
+    target: any,
+    propertyKey: string | symbol | undefined,
+    parameterIndex: number,
+  ) {
     const metadata: ParamMetadata = {
-      type: 'param',
+      type: "param",
       key,
-      index: parameterIndex
+      index: parameterIndex,
     };
     MetadataStorage.addParam(target, propertyKey as string, metadata);
   };
 }
 
 export function Query(key?: string): ParameterDecorator {
-  return function (target: any, propertyKey: string | symbol | undefined, parameterIndex: number) {
+  return function (
+    target: any,
+    propertyKey: string | symbol | undefined,
+    parameterIndex: number,
+  ) {
     const metadata: ParamMetadata = {
-      type: 'query',
+      type: "query",
       key,
-      index: parameterIndex
+      index: parameterIndex,
     };
     MetadataStorage.addParam(target, propertyKey as string, metadata);
   };
 }
 
 export function Headers(key?: string): ParameterDecorator {
-  return function (target: any, propertyKey: string | symbol | undefined, parameterIndex: number) {
+  return function (
+    target: any,
+    propertyKey: string | symbol | undefined,
+    parameterIndex: number,
+  ) {
     const metadata: ParamMetadata = {
-      type: 'headers',
+      type: "headers",
       key,
-      index: parameterIndex
+      index: parameterIndex,
     };
     MetadataStorage.addParam(target, propertyKey as string, metadata);
   };

@@ -49,49 +49,49 @@ export interface HanMiddleware {
 export type MiddlewareFunction = (req: any, res: any, next: any) => void;
 
 // Common decorators
-export const CONTROLLER_METADATA = 'controller';
-export const MODULE_METADATA = 'module';
-export const INJECTABLE_METADATA = 'injectable';
-export const ROUTE_METADATA = 'route';
-export const PARAM_METADATA = 'param';
+export const CONTROLLER_METADATA = "controller";
+export const MODULE_METADATA = "module";
+export const INJECTABLE_METADATA = "injectable";
+export const ROUTE_METADATA = "route";
+export const PARAM_METADATA = "param";
 
 // HTTP Methods
 export enum RequestMethod {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE',
-  PATCH = 'PATCH',
-  ALL = 'ALL',
-  OPTIONS = 'OPTIONS',
-  HEAD = 'HEAD'
+  GET = "GET",
+  POST = "POST",
+  PUT = "PUT",
+  DELETE = "DELETE",
+  PATCH = "PATCH",
+  ALL = "ALL",
+  OPTIONS = "OPTIONS",
+  HEAD = "HEAD",
 }
 
 // Parameter types
 export enum ParameterType {
-  BODY = 'body',
-  QUERY = 'query',
-  PARAM = 'param',
-  HEADERS = 'headers',
-  REQUEST = 'request',
-  RESPONSE = 'response'
+  BODY = "body",
+  QUERY = "query",
+  PARAM = "param",
+  HEADERS = "headers",
+  REQUEST = "request",
+  RESPONSE = "response",
 }
 
 // Utility functions
 export function isFunction(fn: any): fn is Function {
-  return typeof fn === 'function';
+  return typeof fn === "function";
 }
 
 export function isString(str: any): str is string {
-  return typeof str === 'string';
+  return typeof str === "string";
 }
 
 export function isUndefined(obj: any): obj is undefined {
-  return typeof obj === 'undefined';
+  return typeof obj === "undefined";
 }
 
 export function isObject(fn: any): fn is object {
-  return !isUndefined(fn) && fn !== null && typeof fn === 'object';
+  return !isUndefined(fn) && fn !== null && typeof fn === "object";
 }
 
 export function isEmpty(array: any): boolean {
@@ -102,14 +102,17 @@ export function isEmpty(array: any): boolean {
 export class HanError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'HanError';
+    this.name = "HanError";
   }
 }
 
 export class HttpException extends Error {
-  constructor(message: string, private readonly status: number) {
+  constructor(
+    message: string,
+    private readonly status: number,
+  ) {
     super(message);
-    this.name = 'HttpException';
+    this.name = "HttpException";
   }
 
   getStatus(): number {

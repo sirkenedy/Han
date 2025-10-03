@@ -1,19 +1,23 @@
-import 'reflect-metadata';
-import * as express from 'express';
-import { Express } from 'express';
-import { container } from '../container/container';
-import { AppFactory } from './app.factory';
-import { RouteMapper, EnvironmentDetector } from '../utils';
-import { errorHandler } from '../middleware/error.middleware';
-import { HanInterceptor, InterceptorConstructor, InterceptorContext, InterceptorResponse } from '../interfaces/interceptor.interface';
+import "reflect-metadata";
+import * as express from "express";
+import { Express } from "express";
+import { container } from "../container/container";
+import { AppFactory } from "./app.factory";
+import { RouteMapper, EnvironmentDetector } from "../utils";
+import { errorHandler } from "../middleware/error.middleware";
+import {
+  HanInterceptor,
+  InterceptorConstructor,
+  InterceptorContext,
+  InterceptorResponse,
+} from "../interfaces/interceptor.interface";
 
 // Import types separately and use require for CommonJS modules
-import type { CorsOptions } from 'cors';
-import type { HelmetOptions } from 'helmet';
+import type { CorsOptions } from "cors";
+import type { HelmetOptions } from "helmet";
 
-const cors: (options?: CorsOptions) => any = require('cors');
-const helmet: (options?: HelmetOptions) => any = require('helmet');
-
+const cors: (options?: CorsOptions) => any = require("cors");
+const helmet: (options?: HelmetOptions) => any = require("helmet");
 
 export interface HanApplicationOptions {
   cors?: boolean | CorsOptions;
@@ -38,7 +42,11 @@ export interface HanApplicationShutdownSignal {
 export interface HanApplication {
   app: Express;
   listen(port: number | string, callback?: () => void): Promise<any>;
-  listen(port: number | string, hostname: string, callback?: () => void): Promise<any>;
+  listen(
+    port: number | string,
+    hostname: string,
+    callback?: () => void,
+  ): Promise<any>;
   enableCors(): HanApplication;
   useGlobalPrefix(prefix: string): HanApplication;
   getUrl(): Promise<string>;
@@ -72,37 +80,45 @@ export class HanFactory {
     this.moduleClass = moduleClass;
     const defaultShutdownHooks = {
       enabled: true,
-      signals: ['SIGINT', 'SIGTERM'] as Array<keyof HanApplicationShutdownSignal>,
-      gracefulTimeout: 10000 // 10 seconds
+      signals: ["SIGINT", "SIGTERM"] as Array<
+        keyof HanApplicationShutdownSignal
+      >,
+      gracefulTimeout: 10000, // 10 seconds
     };
 
     this.options = {
       cors: true,
       helmet: true,
       bodyParser: true,
-      globalPrefix: '',
+      globalPrefix: "",
       microservice: false,
       logger: true,
       ...options,
       shutdownHooks: {
         ...defaultShutdownHooks,
-        ...options.shutdownHooks
-      }
+        ...options.shutdownHooks,
+      },
     };
     this.app = express();
   }
 
-  static async create(moduleClass: any, options: HanApplicationOptions = {}): Promise<HanApplication> {
+  static async create(
+    moduleClass: any,
+    options: HanApplicationOptions = {},
+  ): Promise<HanApplication> {
     const factory = new HanFactory(moduleClass, options);
     return await factory.bootstrap();
   }
 
-  static async createMicroservice(moduleClass: any, options: HanApplicationOptions = {}): Promise<HanApplication> {
+  static async createMicroservice(
+    moduleClass: any,
+    options: HanApplicationOptions = {},
+  ): Promise<HanApplication> {
     const factory = new HanFactory(moduleClass, {
       ...options,
       microservice: true,
       cors: false,
-      helmet: false
+      helmet: false,
     });
     return await factory.bootstrap();
   }
@@ -111,7 +127,7 @@ export class HanFactory {
     // Performance optimization: run middleware and module setup in parallel
     await Promise.all([
       this.setupCriticalMiddleware(), // Essential middleware first
-      this.bootstrapModule()
+      this.bootstrapModule(),
     ]);
 
     // CRITICAL: Setup optional middleware (CORS, Helmet) BEFORE routes
@@ -145,7 +161,7 @@ export class HanFactory {
   private setupOptionalMiddleware(): void {
     // Security and feature middleware
     if (this.options.helmet) {
-      if (typeof this.options.helmet === 'boolean') {
+      if (typeof this.options.helmet === "boolean") {
         this.app.use(helmet());
       } else {
         this.app.use(helmet(this.options.helmet as HelmetOptions));
@@ -153,14 +169,13 @@ export class HanFactory {
     }
 
     if (this.options.cors) {
-      if (typeof this.options.cors === 'boolean') {
+      if (typeof this.options.cors === "boolean") {
         this.app.use(cors());
       } else {
         this.app.use(cors(this.options.cors as CorsOptions));
       }
     }
   }
-
 
   private async bootstrapModule(): Promise<void> {
     container.registerModule(this.moduleClass);
@@ -187,14 +202,16 @@ export class HanFactory {
   private setupShutdownHooks(_app: HanApplication): void {
     if (!this.options.shutdownHooks?.enabled) return;
 
-    const signals = this.options.shutdownHooks.signals || ['SIGINT', 'SIGTERM'];
+    const signals = this.options.shutdownHooks.signals || ["SIGINT", "SIGTERM"];
     const gracefulTimeout = this.options.shutdownHooks.gracefulTimeout || 10000;
 
     // Setup process signal handlers automatically
-    signals.forEach(signal => {
+    signals.forEach((signal) => {
       process.on(signal, async () => {
         if (this.isShuttingDown) {
-          console.log(`\n⚠️  Force shutdown on ${signal}. Process will exit forcefully.`);
+          console.log(
+            `\n⚠️  Force shutdown on ${signal}. Process will exit forcefully.`,
+          );
           process.exit(1);
         }
 
@@ -203,32 +220,34 @@ export class HanFactory {
 
         // Set timeout for graceful shutdown
         const shutdownTimer = setTimeout(() => {
-          console.log(`\n⏰ Graceful shutdown timeout (${gracefulTimeout}ms). Forcing exit...`);
+          console.log(
+            `\n⏰ Graceful shutdown timeout (${gracefulTimeout}ms). Forcing exit...`,
+          );
           process.exit(1);
         }, gracefulTimeout);
 
         try {
           // Execute shutdown callbacks
-          console.log('📞 Executing shutdown hooks...');
-          const shutdownPromises = Array.from(this.shutdownCallbacks).map(callback =>
-            Promise.resolve(callback())
+          console.log("📞 Executing shutdown hooks...");
+          const shutdownPromises = Array.from(this.shutdownCallbacks).map(
+            (callback) => Promise.resolve(callback()),
           );
 
           await Promise.allSettled(shutdownPromises);
 
           // Close HTTP server
           if (this.server) {
-            console.log('🔌 Closing HTTP server...');
+            console.log("🔌 Closing HTTP server...");
             await new Promise<void>((resolve) => {
               this.server.close((err: any) => {
                 if (err) {
-                  if (err.code === 'ERR_SERVER_NOT_RUNNING') {
-                    console.log('✅ HTTP server already closed');
+                  if (err.code === "ERR_SERVER_NOT_RUNNING") {
+                    console.log("✅ HTTP server already closed");
                   } else {
-                    console.error('❌ Error closing server:', err);
+                    console.error("❌ Error closing server:", err);
                   }
                 } else {
-                  console.log('✅ HTTP server closed successfully');
+                  console.log("✅ HTTP server closed successfully");
                 }
                 resolve();
               });
@@ -236,26 +255,28 @@ export class HanFactory {
           }
 
           clearTimeout(shutdownTimer);
-          console.log('🎉 Graceful shutdown completed. Process exiting...');
+          console.log("🎉 Graceful shutdown completed. Process exiting...");
           process.exit(0);
         } catch (error: any) {
           clearTimeout(shutdownTimer);
-          if (error.code === 'ERR_SERVER_NOT_RUNNING') {
-            console.log('🎉 Graceful shutdown completed. Process exiting...');
+          if (error.code === "ERR_SERVER_NOT_RUNNING") {
+            console.log("🎉 Graceful shutdown completed. Process exiting...");
             process.exit(0);
           } else {
-            console.error('❌ Error during shutdown:', error);
+            console.error("❌ Error during shutdown:", error);
             process.exit(1);
           }
         }
       });
     });
 
-    console.log(`🛡️  Shutdown hooks automatically enabled for signals: ${signals.join(', ')}`);
+    console.log(
+      `🛡️  Shutdown hooks automatically enabled for signals: ${signals.join(", ")}`,
+    );
 
     // Add default cleanup callback
     this.shutdownCallbacks.add(async () => {
-      console.log('🧹 Running framework cleanup...');
+      console.log("🧹 Running framework cleanup...");
       // Any default framework cleanup logic can go here
     });
   }
@@ -291,8 +312,12 @@ export class HanFactory {
     return {
       app: factoryInstance.app,
 
-      async listen(port: number | string, hostnameOrCallback?: string | (() => void), callback?: (() => void)): Promise<any> {
-        const actualPort = typeof port === 'string' ? parseInt(port, 10) : port;
+      async listen(
+        port: number | string,
+        hostnameOrCallback?: string | (() => void),
+        callback?: () => void,
+      ): Promise<any> {
+        const actualPort = typeof port === "string" ? parseInt(port, 10) : port;
 
         // Auto-detect environment for host binding
         const envInfo = EnvironmentDetector.detect();
@@ -300,7 +325,7 @@ export class HanFactory {
         let actualCallback: (() => void) | undefined;
 
         // Handle overloaded signatures like NestJS
-        if (typeof hostnameOrCallback === 'string') {
+        if (typeof hostnameOrCallback === "string") {
           hostname = hostnameOrCallback;
           actualCallback = callback;
         } else {
@@ -309,44 +334,50 @@ export class HanFactory {
         }
 
         return new Promise((resolve) => {
-          const server = factoryInstance.app.listen(actualPort, hostname, () => {
-            factoryInstance.server = server; // Set server reference immediately after listen
+          const server = factoryInstance.app.listen(
+            actualPort,
+            hostname,
+            () => {
+              factoryInstance.server = server; // Set server reference immediately after listen
 
-            if (!factoryInstance.options.microservice) {
-              // Get dynamic server URL and environment info
-              const boundAddress = server.address();
-              let serverUrl = `http://localhost:${actualPort}`;
+              if (!factoryInstance.options.microservice) {
+                // Get dynamic server URL and environment info
+                const boundAddress = server.address();
+                let serverUrl = `http://localhost:${actualPort}`;
 
-              if (boundAddress && typeof boundAddress !== 'string') {
-                let address = boundAddress.address;
-                const port = boundAddress.port;
+                if (boundAddress && typeof boundAddress !== "string") {
+                  let address = boundAddress.address;
+                  const port = boundAddress.port;
 
-                // Handle IPv6 and IPv4 like NestJS
-                if (boundAddress.family === 'IPv6') {
-                  address = `[${address}]`;
+                  // Handle IPv6 and IPv4 like NestJS
+                  if (boundAddress.family === "IPv6") {
+                    address = `[${address}]`;
+                  }
+
+                  // If bound to 0.0.0.0 or ::, use localhost for display
+                  if (address === "0.0.0.0" || address === "::") {
+                    address = "localhost";
+                  }
+
+                  serverUrl = `http://${address}:${port}`;
                 }
 
-                // If bound to 0.0.0.0 or ::, use localhost for display
-                if (address === '0.0.0.0' || address === '::') {
-                  address = 'localhost';
-                }
+                // Get environment info from detector
+                const envInfo = EnvironmentDetector.detect();
+                const environment = envInfo.isProduction
+                  ? "production"
+                  : "development";
 
-                serverUrl = `http://${address}:${port}`;
+                RouteMapper.displayRoutes(serverUrl, environment);
               }
 
-              // Get environment info from detector
-              const envInfo = EnvironmentDetector.detect();
-              const environment = envInfo.isProduction ? 'production' : 'development';
+              if (actualCallback) {
+                actualCallback();
+              }
 
-              RouteMapper.displayRoutes(serverUrl, environment);
-            }
-
-            if (actualCallback) {
-              actualCallback();
-            }
-
-            resolve(server);
-          });
+              resolve(server);
+            },
+          );
         });
       },
 
@@ -356,18 +387,20 @@ export class HanFactory {
       },
 
       useGlobalPrefix(_: string): HanApplication {
-        console.warn('useGlobalPrefix should be configured during factory creation for best results');
+        console.warn(
+          "useGlobalPrefix should be configured during factory creation for best results",
+        );
         return this;
       },
 
       async getUrl(): Promise<string> {
         if (!factoryInstance.server) {
-          throw new Error('Server is not listening. Call listen() first.');
+          throw new Error("Server is not listening. Call listen() first.");
         }
 
         const boundAddress = factoryInstance.server.address();
         if (!boundAddress) {
-          throw new Error('Server address is not available.');
+          throw new Error("Server address is not available.");
         }
 
         // Return actual bound address like NestJS
@@ -376,22 +409,25 @@ export class HanFactory {
         const port = boundAddress.port;
 
         // Handle IPv6 and IPv4 like NestJS
-        if (family === 'IPv6') {
+        if (family === "IPv6") {
           address = `[${address}]`;
         }
 
         // If bound to 0.0.0.0 or ::, return localhost for client connections
         // The server binds to all interfaces, but clients should connect via localhost
-        if (address === '0.0.0.0' || address === '::') {
-          address = 'localhost';
+        if (address === "0.0.0.0" || address === "::") {
+          address = "localhost";
         }
 
-        const protocol = 'http'; // TODO: detect HTTPS if needed
+        const protocol = "http"; // TODO: detect HTTPS if needed
         return `${protocol}://${address}:${port}`;
       },
 
       getRoutes(): any[] {
-        return RouteMapper.collectAllRoutes(factoryInstance.controllers, factoryInstance.options.globalPrefix);
+        return RouteMapper.collectAllRoutes(
+          factoryInstance.controllers,
+          factoryInstance.options.globalPrefix,
+        );
       },
 
       async close(): Promise<void> {
@@ -406,7 +442,7 @@ export class HanFactory {
       },
 
       get<T>(token: string | (new (...args: any[]) => T)): T {
-        const tokenName = typeof token === 'string' ? token : token.name;
+        const tokenName = typeof token === "string" ? token : token.name;
         return container.resolve<T>(tokenName);
       },
 
@@ -427,14 +463,16 @@ export class HanFactory {
 
       useGlobalFilters(...filters: any[]): HanApplication {
         // Add global error filters
-        filters.forEach(filter => {
-          if (typeof filter === 'function') {
+        filters.forEach((filter) => {
+          if (typeof filter === "function") {
             factoryInstance.app.use(filter);
-          } else if (filter && typeof filter.catch === 'function') {
+          } else if (filter && typeof filter.catch === "function") {
             // Error handling middleware
-            factoryInstance.app.use((err: any, req: any, res: any, next: any) => {
-              filter.catch(err, { req, res, next });
-            });
+            factoryInstance.app.use(
+              (err: any, req: any, res: any, next: any) => {
+                filter.catch(err, { req, res, next });
+              },
+            );
           }
         });
         return this;
@@ -442,10 +480,10 @@ export class HanFactory {
 
       useGlobalPipes(...pipes: any[]): HanApplication {
         // Add global pipes (validation/transformation middleware)
-        pipes.forEach(pipe => {
-          if (typeof pipe === 'function') {
+        pipes.forEach((pipe) => {
+          if (typeof pipe === "function") {
             factoryInstance.app.use(pipe);
-          } else if (pipe && typeof pipe.transform === 'function') {
+          } else if (pipe && typeof pipe.transform === "function") {
             factoryInstance.app.use((req: any, res: any, next: any) => {
               try {
                 pipe.transform(req.body, { req, res });
@@ -459,29 +497,36 @@ export class HanFactory {
         return this;
       },
 
-      useGlobalInterceptors(...interceptors: (HanInterceptor | InterceptorConstructor)[]): HanApplication {
+      useGlobalInterceptors(
+        ...interceptors: (HanInterceptor | InterceptorConstructor)[]
+      ): HanApplication {
         // Add global interceptors with intuitive lifecycle hooks
-        interceptors.forEach(InterceptorOrClass => {
+        interceptors.forEach((InterceptorOrClass) => {
           let interceptorInstance: HanInterceptor;
 
           // Handle class constructors vs instances
-          if (typeof InterceptorOrClass === 'function') {
+          if (typeof InterceptorOrClass === "function") {
             interceptorInstance = new InterceptorOrClass();
-          } else if (InterceptorOrClass && (
-            InterceptorOrClass.beforeHandle ||
-            InterceptorOrClass.afterHandle ||
-            InterceptorOrClass.onError
-          )) {
+          } else if (
+            InterceptorOrClass &&
+            (InterceptorOrClass.beforeHandle ||
+              InterceptorOrClass.afterHandle ||
+              InterceptorOrClass.onError)
+          ) {
             interceptorInstance = InterceptorOrClass;
           } else {
-            console.warn('Invalid interceptor provided. Must implement at least one HanInterceptor method.');
+            console.warn(
+              "Invalid interceptor provided. Must implement at least one HanInterceptor method.",
+            );
             return;
           }
 
           // Register the interceptor as Express middleware with lifecycle hooks
           factoryInstance.app.use(async (req: any, res: any, next: any) => {
             const startTime = Date.now();
-            const traceId = req.headers['x-trace-id'] || `trace_${startTime}_${Math.random().toString(36).substring(2, 11)}`;
+            const traceId =
+              req.headers["x-trace-id"] ||
+              `trace_${startTime}_${Math.random().toString(36).substring(2, 11)}`;
 
             const context: InterceptorContext = {
               req,
@@ -489,7 +534,7 @@ export class HanFactory {
               method: req.method,
               path: req.path,
               startTime,
-              traceId
+              traceId,
             };
 
             try {
@@ -505,7 +550,7 @@ export class HanFactory {
               let responseCalled = false;
 
               // Override res.send
-              res.send = function(data: any) {
+              res.send = function (data: any) {
                 if (!responseCalled) {
                   responseCalled = true;
                   responseData = data;
@@ -515,7 +560,7 @@ export class HanFactory {
               };
 
               // Override res.json
-              res.json = function(data: any) {
+              res.json = function (data: any) {
                 if (!responseCalled) {
                   responseCalled = true;
                   responseData = data;
@@ -530,12 +575,12 @@ export class HanFactory {
                     const response: InterceptorResponse = {
                       statusCode: res.statusCode,
                       data: responseData,
-                      duration: Date.now() - startTime
+                      duration: Date.now() - startTime,
                     };
                     await interceptorInstance.afterHandle(context, response);
                   }
                 } catch (error) {
-                  console.error('Error in interceptor afterHandle:', error);
+                  console.error("Error in interceptor afterHandle:", error);
                 }
               };
 
@@ -546,7 +591,10 @@ export class HanFactory {
                 try {
                   await interceptorInstance.onError(context, error);
                 } catch (interceptorError) {
-                  console.error('Error in interceptor onError handler:', interceptorError);
+                  console.error(
+                    "Error in interceptor onError handler:",
+                    interceptorError,
+                  );
                 }
               }
               next(error);
@@ -558,26 +606,28 @@ export class HanFactory {
 
       useGlobalGuards(...guards: any[]): HanApplication {
         // Add global guards (authentication/authorization)
-        guards.forEach(guard => {
-          if (typeof guard === 'function') {
+        guards.forEach((guard) => {
+          if (typeof guard === "function") {
             factoryInstance.app.use(guard);
-          } else if (guard && typeof guard.canActivate === 'function') {
+          } else if (guard && typeof guard.canActivate === "function") {
             factoryInstance.app.use((req: any, res: any, next: any) => {
               const canActivate = guard.canActivate({ req, res });
               if (canActivate === true || (canActivate && canActivate.then)) {
                 if (canActivate === true) {
                   next();
                 } else {
-                  canActivate.then((result: boolean) => {
-                    if (result) {
-                      next();
-                    } else {
-                      res.status(403).json({ message: 'Forbidden' });
-                    }
-                  }).catch(next);
+                  canActivate
+                    .then((result: boolean) => {
+                      if (result) {
+                        next();
+                      } else {
+                        res.status(403).json({ message: "Forbidden" });
+                      }
+                    })
+                    .catch(next);
                 }
               } else {
-                res.status(403).json({ message: 'Forbidden' });
+                res.status(403).json({ message: "Forbidden" });
               }
             });
           }
@@ -595,26 +645,32 @@ export class HanFactory {
 
       async init(): Promise<void> {
         // Initialize the application (similar to NestJS)
-        console.log('🔧 Initializing Han Framework application...');
+        console.log("🔧 Initializing Han Framework application...");
 
         // Application is automatically initialized with shutdown hooks in bootstrap()
         // This method is kept for NestJS compatibility and future extensions
 
-        console.log('✅ Han Framework application initialized successfully');
+        console.log("✅ Han Framework application initialized successfully");
       },
 
       onApplicationShutdown(callback: () => Promise<void> | void): void {
         // Register a shutdown callback to be executed before application shutdown
         factoryInstance.shutdownCallbacks.add(callback);
-      }
+      },
     };
   }
 }
 
-export async function createHanApp(moduleClass: any, options?: HanApplicationOptions): Promise<HanApplication> {
+export async function createHanApp(
+  moduleClass: any,
+  options?: HanApplicationOptions,
+): Promise<HanApplication> {
   return await HanFactory.create(moduleClass, options);
 }
 
-export async function createHanMicroservice(moduleClass: any, options?: HanApplicationOptions): Promise<HanApplication> {
+export async function createHanMicroservice(
+  moduleClass: any,
+  options?: HanApplicationOptions,
+): Promise<HanApplication> {
   return await HanFactory.createMicroservice(moduleClass, options);
 }

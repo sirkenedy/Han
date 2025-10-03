@@ -8,20 +8,21 @@ Han Framework eliminates configuration complexity while providing powerful featu
 
 ## ✨ Why Han Framework?
 
-| Feature | Han Framework | NestJS |
-|---------|---------------|---------|
-| **Setup Time** | 2 minutes | 15+ minutes |
-| **Configuration** | Zero config needed | Manual setup required |
-| **Shutdown Hooks** | Automatic | Manual `enableShutdownHooks()` |
-| **Security** | Built-in CORS + Helmet | Manual configuration |
-| **Environment Detection** | Automatic | Manual setup |
-| **Route Analytics** | Built-in visual dashboard | Not included |
+| Feature                   | Han Framework             | NestJS                         |
+| ------------------------- | ------------------------- | ------------------------------ |
+| **Setup Time**            | 2 minutes                 | 15+ minutes                    |
+| **Configuration**         | Zero config needed        | Manual setup required          |
+| **Shutdown Hooks**        | Automatic                 | Manual `enableShutdownHooks()` |
+| **Security**              | Built-in CORS + Helmet    | Manual configuration           |
+| **Environment Detection** | Automatic                 | Manual setup                   |
+| **Route Analytics**       | Built-in visual dashboard | Not included                   |
 
 ---
 
 ## 🏃‍♂️ Quick Start
 
 ### Installation
+
 ```bash
 npm install han-framework
 # or
@@ -29,31 +30,32 @@ yarn add han-framework
 ```
 
 ### Create Your First App
+
 ```typescript
 // app.module.ts
-import { Module } from 'han-framework';
-import { AppController } from './app.controller';
+import { Module } from "han-framework";
+import { AppController } from "./app.controller";
 
 @Module({
-  controllers: [AppController]
+  controllers: [AppController],
 })
 export class AppModule {}
 
 // app.controller.ts
-import { Controller, Get } from 'han-framework';
+import { Controller, Get } from "han-framework";
 
 @Controller()
 export class AppController {
   @Get()
   hello() {
-    return { message: 'Hello Han Framework!' };
+    return { message: "Hello Han Framework!" };
   }
 }
 
 // index.ts
-import 'reflect-metadata';
-import { HanFactory } from 'han-framework';
-import { AppModule } from './app.module';
+import "reflect-metadata";
+import { HanFactory } from "han-framework";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await HanFactory.create(AppModule);
@@ -64,11 +66,13 @@ bootstrap();
 ```
 
 ### Run Your App
+
 ```bash
 npm start
 ```
 
 **That's it!** 🎉 Your app is running with:
+
 - ✅ CORS enabled
 - ✅ Security headers (Helmet)
 - ✅ Request logging
@@ -80,6 +84,7 @@ npm start
 ## 🎯 Core Features
 
 ### Zero Configuration
+
 No setup required - everything works out of the box with sensible defaults.
 
 ```typescript
@@ -89,6 +94,7 @@ await app.listen(3000);
 ```
 
 ### Smart Environment Detection
+
 Automatically configures based on your deployment environment.
 
 - **Development**: Binds to `localhost`, enhanced logging
@@ -96,6 +102,7 @@ Automatically configures based on your deployment environment.
 - **Containers**: Auto-detects Docker/Kubernetes, configures accordingly
 
 ### Automatic Lifecycle Management
+
 Graceful shutdown and cleanup happen automatically - no manual setup needed.
 
 ```typescript
@@ -105,6 +112,7 @@ Graceful shutdown and cleanup happen automatically - no manual setup needed.
 ```
 
 ### Built-in Security
+
 Security best practices are enabled by default.
 
 - **CORS**: Configured automatically with smart defaults
@@ -112,6 +120,7 @@ Security best practices are enabled by default.
 - **Request Validation**: Built-in input sanitization
 
 ### Request/Response Interceptors
+
 Simple, intuitive hooks for request lifecycle management.
 
 ```typescript
@@ -121,6 +130,7 @@ app.useGlobalInterceptors(new PerformanceInterceptor(200));
 ```
 
 ### Visual Route Analytics
+
 Beautiful route dashboard displayed on startup.
 
 ```
@@ -152,23 +162,25 @@ Beautiful route dashboard displayed on startup.
 ## 🛠️ Configuration (When You Need It)
 
 ### Basic Configuration
+
 ```typescript
 const app = await HanFactory.create(AppModule, {
-  globalPrefix: '/api/v1',    // Add API prefix
-  cors: true,                 // Enable CORS (default: true)
-  helmet: true,               // Enable security headers (default: true)
-  bodyParser: true            // Enable body parsing (default: true)
+  globalPrefix: "/api/v1", // Add API prefix
+  cors: true, // Enable CORS (default: true)
+  helmet: true, // Enable security headers (default: true)
+  bodyParser: true, // Enable body parsing (default: true)
 });
 ```
 
 ### Advanced Configuration
+
 ```typescript
 const app = await HanFactory.create(AppModule, {
   // CORS Configuration
   cors: {
-    origin: ['https://yourdomain.com'],
+    origin: ["https://yourdomain.com"],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
+    methods: ["GET", "POST", "PUT", "DELETE"],
   },
 
   // Security Configuration
@@ -176,17 +188,17 @@ const app = await HanFactory.create(AppModule, {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"]
-      }
-    }
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+      },
+    },
   },
 
   // Shutdown Configuration
   shutdownHooks: {
-    enabled: true,              // Enable graceful shutdown (default: true)
-    gracefulTimeout: 15000,     // 15 second timeout (default: 10000)
-    signals: ['SIGINT', 'SIGTERM'] // Signals to handle
-  }
+    enabled: true, // Enable graceful shutdown (default: true)
+    gracefulTimeout: 15000, // 15 second timeout (default: 10000)
+    signals: ["SIGINT", "SIGTERM"], // Signals to handle
+  },
 });
 ```
 
@@ -195,23 +207,25 @@ const app = await HanFactory.create(AppModule, {
 ## 🔧 Advanced Features
 
 ### Custom Shutdown Hooks
+
 Register cleanup operations that run automatically during shutdown.
 
 ```typescript
 // Database cleanup
 app.onApplicationShutdown(async () => {
   await database.close();
-  console.log('Database connections closed');
+  console.log("Database connections closed");
 });
 
 // Cache cleanup
 app.onApplicationShutdown(() => {
   cache.clear();
-  console.log('Cache cleared');
+  console.log("Cache cleared");
 });
 ```
 
 ### Global Interceptors
+
 Add request/response processing that applies to all routes.
 
 ```typescript
@@ -238,17 +252,18 @@ app.useGlobalInterceptors(new AuthInterceptor());
 ```
 
 ### Dependency Injection
+
 Full dependency injection support with automatic resolution.
 
 ```typescript
 @Injectable()
 export class UserService {
   findAll() {
-    return [{ id: 1, name: 'John' }];
+    return [{ id: 1, name: "John" }];
   }
 }
 
-@Controller('users')
+@Controller("users")
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -260,6 +275,7 @@ export class UserController {
 ```
 
 ### Module System
+
 Organize your application with a modular architecture.
 
 ```typescript
@@ -267,7 +283,7 @@ Organize your application with a modular architecture.
   imports: [DatabaseModule, AuthModule],
   controllers: [UserController],
   providers: [UserService],
-  exports: [UserService]
+  exports: [UserService],
 })
 export class UserModule {}
 ```
@@ -277,6 +293,7 @@ export class UserModule {}
 ## 🚀 Deployment
 
 ### Development
+
 ```typescript
 const app = await HanFactory.create(AppModule);
 await app.listen(3000);
@@ -284,11 +301,12 @@ await app.listen(3000);
 ```
 
 ### Production
+
 ```typescript
 const app = await HanFactory.create(AppModule, {
   shutdownHooks: {
-    gracefulTimeout: 30000  // Longer timeout for production
-  }
+    gracefulTimeout: 30000, // Longer timeout for production
+  },
 });
 
 const port = process.env.PORT || 3000;
@@ -297,6 +315,7 @@ await app.listen(port);
 ```
 
 ### Docker
+
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -313,17 +332,21 @@ CMD ["npm", "start"]
 ## 📖 Examples
 
 ### REST API
+
 ```typescript
-@Controller('users')
+@Controller("users")
 export class UserController {
   @Get()
   findAll() {
-    return [{ id: 1, name: 'John' }, { id: 2, name: 'Jane' }];
+    return [
+      { id: 1, name: "John" },
+      { id: 2, name: "Jane" },
+    ];
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return { id, name: 'John' };
+  @Get(":id")
+  findOne(@Param("id") id: string) {
+    return { id, name: "John" };
   }
 
   @Post()
@@ -334,27 +357,29 @@ export class UserController {
 ```
 
 ### WebSocket Support
+
 ```typescript
 @Controller()
 export class EventsController {
   @WebSocketGateway()
   handleConnection(client: any) {
-    console.log('Client connected:', client.id);
+    console.log("Client connected:", client.id);
   }
 
-  @SubscribeMessage('message')
+  @SubscribeMessage("message")
   handleMessage(client: any, payload: any) {
-    return { event: 'message', data: payload };
+    return { event: "message", data: payload };
   }
 }
 ```
 
 ### Microservices
+
 ```typescript
 // Create a microservice instead of HTTP server
 const microservice = await HanFactory.createMicroservice(AppModule, {
   transport: Transport.TCP,
-  options: { port: 3001 }
+  options: { port: 3001 },
 });
 
 await microservice.listen();
@@ -365,11 +390,12 @@ await microservice.listen();
 ## 🆚 Comparison with NestJS
 
 ### Migration from NestJS
+
 Han Framework is designed to be compatible with NestJS applications. Most NestJS code works without changes:
 
 ```typescript
 // Your existing NestJS controllers work as-is
-@Controller('users')
+@Controller("users")
 export class UserController {
   @Get()
   findAll() {
@@ -380,39 +406,42 @@ export class UserController {
 // Your existing modules work as-is
 @Module({
   imports: [UserModule],
-  controllers: [AppController]
+  controllers: [AppController],
 })
 export class AppModule {}
 ```
 
 ### Key Differences
 
-| Aspect | Han Framework | NestJS |
-|--------|---------------|---------|
-| **Setup** | Zero config | Manual config |
-| **Shutdown** | Automatic | Manual |
-| **Security** | Built-in | Manual setup |
-| **Interceptors** | Simple hooks | RxJS observables |
-| **Environment** | Auto-detection | Manual configuration |
-| **Performance** | Built-in monitoring | External packages |
+| Aspect           | Han Framework       | NestJS               |
+| ---------------- | ------------------- | -------------------- |
+| **Setup**        | Zero config         | Manual config        |
+| **Shutdown**     | Automatic           | Manual               |
+| **Security**     | Built-in            | Manual setup         |
+| **Interceptors** | Simple hooks        | RxJS observables     |
+| **Environment**  | Auto-detection      | Manual configuration |
+| **Performance**  | Built-in monitoring | External packages    |
 
 ---
 
 ## 📚 Documentation
 
 ### Core Guides
+
 - **[Getting Started](./docs/GETTING_STARTED.md)** - Step-by-step setup guide
 - **[Architecture](./docs/ARCHITECTURE.md)** - Framework design and concepts
 - **[Configuration](./docs/CONFIGURATION.md)** - All configuration options
 - **[Deployment](./docs/DEPLOYMENT.md)** - Production deployment guide
 
 ### Advanced Topics
+
 - **[Lifecycle Management](./docs/LIFECYCLE_MANAGEMENT.md)** - Graceful shutdown and cleanup
 - **[Interceptors](./docs/INTERCEPTORS.md)** - Request/response lifecycle hooks
 - **[Dependency Injection](./docs/DEPENDENCY_INJECTION.md)** - DI container usage
 - **[Microservices](./docs/MICROSERVICES.md)** - Building microservice applications
 
 ### Examples
+
 - **[REST API](./examples/rest-api.example.ts)** - Complete REST API example
 - **[WebSocket](./examples/websocket.example.ts)** - Real-time communication
 - **[Microservice](./examples/microservice.example.ts)** - Microservice architecture
@@ -447,6 +476,7 @@ src/
 We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
 
 ### Development Setup
+
 ```bash
 git clone https://github.com/your-org/han-framework
 cd han-framework
@@ -455,6 +485,7 @@ npm run dev
 ```
 
 ### Running Tests
+
 ```bash
 npm test              # Unit tests
 npm run test:e2e     # End-to-end tests
@@ -483,4 +514,4 @@ Get started with Han Framework today and experience the joy of zero-configuratio
 npm install han-framework
 ```
 
-*Built with ❤️ for developers who want to focus on building, not configuring.*
+_Built with ❤️ for developers who want to focus on building, not configuring._

@@ -10,6 +10,7 @@
     "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
     "build": "rimraf dist && tsc",
     "lint": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -30,6 +31,7 @@
     "@types/node": "^24.5.2",
     "module-alias": "^2.2.3",
     "nodemon": "^3.1.10",
+    "prettier": "^3.0.0",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",

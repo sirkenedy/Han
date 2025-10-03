@@ -1,142 +1,155 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import chalk from 'chalk';
+import * as fs from "fs-extra";
+import * as path from "path";
+import chalk from "chalk";
 
 export class ProjectGenerator {
-  async generateProject(projectPath: string, projectName: string, fastMode = false) {
+  async generateProject(
+    projectPath: string,
+    projectName: string,
+    fastMode = false,
+  ) {
     const startTime = Date.now();
 
-    console.log(chalk.cyan('\n🚀 Creating Han Framework project...'));
-    console.log(chalk.gray('━'.repeat(50)));
+    console.log(chalk.cyan("\n🚀 Creating Han Framework project..."));
+    console.log(chalk.gray("━".repeat(50)));
 
     // Create project directory
-    console.log(chalk.blue('📁 Creating project directory...'));
+    console.log(chalk.blue("📁 Creating project directory..."));
     await fs.ensureDir(projectPath);
-    console.log(chalk.green('✅ Project directory created'));
+    console.log(chalk.green("✅ Project directory created"));
 
     // Generate package.json
-    console.log(chalk.blue('📦 Generating package.json...'));
+    console.log(chalk.blue("📦 Generating package.json..."));
     await this.generatePackageJson(projectPath, projectName, fastMode);
-    console.log(chalk.green('✅ package.json created'));
+    console.log(chalk.green("✅ package.json created"));
 
     // Generate TypeScript configuration
-    console.log(chalk.blue('⚙️  Setting up TypeScript configuration...'));
+    console.log(chalk.blue("⚙️  Setting up TypeScript configuration..."));
     await this.generateTsConfig(projectPath);
     await this.generateTsBuildConfig(projectPath);
-    console.log(chalk.green('✅ TypeScript config created'));
+    console.log(chalk.green("✅ TypeScript config created"));
 
     // Generate development configuration
     if (!fastMode) {
-      console.log(chalk.blue('🛠️  Configuring development tools...'));
+      console.log(chalk.blue("🛠️  Configuring development tools..."));
       await this.generateDevConfig(projectPath);
       await this.generateLintConfig(projectPath);
       await this.generatePrettierConfig(projectPath);
       await this.generateJestConfig(projectPath);
-      console.log(chalk.green('✅ Development tools configured'));
+      console.log(chalk.green("✅ Development tools configured"));
     }
 
     // Generate .gitignore
-    console.log(chalk.blue('📋 Creating .gitignore...'));
+    console.log(chalk.blue("📋 Creating .gitignore..."));
     await this.generateGitIgnore(projectPath);
-    console.log(chalk.green('✅ .gitignore created'));
+    console.log(chalk.green("✅ .gitignore created"));
 
     // Generate README.md
-    console.log(chalk.blue('📖 Writing README documentation...'));
+    console.log(chalk.blue("📖 Writing README documentation..."));
     await this.generateReadme(projectPath, projectName);
-    console.log(chalk.green('✅ README.md created'));
+    console.log(chalk.green("✅ README.md created"));
 
     // Generate source structure
-    console.log(chalk.blue('🏗️  Building source code structure...'));
+    console.log(chalk.blue("🏗️  Building source code structure..."));
     await this.generateSourceStructure(projectPath);
-    console.log(chalk.green('✅ Source structure created'));
+    console.log(chalk.green("✅ Source structure created"));
 
     // Generate environment files
-    console.log(chalk.blue('🌍 Setting up environment configuration...'));
+    console.log(chalk.blue("🌍 Setting up environment configuration..."));
     await this.generateEnvFiles(projectPath);
-    console.log(chalk.green('✅ Environment files created'));
+    console.log(chalk.green("✅ Environment files created"));
 
     // Generate test structure
     if (!fastMode) {
-      console.log(chalk.blue('🧪 Setting up Han Test framework...'));
+      console.log(chalk.blue("🧪 Setting up Han Test framework..."));
       await this.generateTestStructure(projectPath);
-      await this.generateTestRunner(projectPath);
-      console.log(chalk.green('✅ Han Test framework configured'));
+      console.log(chalk.green("✅ Han Test framework configured"));
     }
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log(chalk.gray('━'.repeat(50)));
-    console.log(chalk.green(`🎉 Project created successfully in ${duration}s!`));
-    console.log(chalk.yellow('\nNext steps:'));
+    console.log(chalk.gray("━".repeat(50)));
+    console.log(
+      chalk.green(`🎉 Project created successfully in ${duration}s!`),
+    );
+    console.log(chalk.yellow("\nNext steps:"));
     console.log(chalk.white(`  cd ${projectName}`));
-    console.log(chalk.white('  npm install'));
-    console.log(chalk.white('  npm run dev'));
-    console.log(chalk.cyan('\nHappy coding! 🚀\n'));
+    console.log(chalk.white("  npm install"));
+    console.log(chalk.white("  npm run dev"));
+    console.log(chalk.cyan("\nHappy coding! 🚀\n"));
   }
 
-  private async generatePackageJson(projectPath: string, projectName: string, fastMode = false) {
+  private async generatePackageJson(
+    projectPath: string,
+    projectName: string,
+    fastMode = false,
+  ) {
     const packageJson = {
       name: projectName,
-      version: '0.0.1',
+      version: "0.0.1",
       description: `A Han Framework application`,
-      main: 'dist/index.js',
+      main: "dist/index.js",
       scripts: {
-        'build': 'rimraf dist && tsc -p tsconfig.build.json',
-        'start': 'node dist/index.js',
-        'dev': 'nodemon',
-        'start:prod': 'npm run build && npm start',
-        'lint': 'eslint \\"{src,apps,libs,test}/**/*.ts\\" --fix',
-        'format': 'prettier --write \\"src/**/*.ts\\" \\"test/**/*.ts\\"',
-        'test': 'ts-node scripts/test-runner.ts',
-        'test:watch': 'nodemon --exec \\"npm run test\\"',
-        'test:e2e': 'ts-node scripts/test-runner.ts --e2e'
+        build: "rimraf dist && tsc -p tsconfig.build.json",
+        start: "node dist/index.js",
+        dev: "nodemon",
+        "start:prod": "npm run build && npm start",
+        lint: 'eslint \\"{src,apps,libs,test}/**/*.ts\\" --fix',
+        format: 'prettier --write \\"src/**/*.ts\\" \\"test/**/*.ts\\"',
+        test: "han-test",
+        "test:watch": 'nodemon --exec \\"npm run test\\"',
+        "test:e2e": "han-test --e2e",
       },
       dependencies: {
-        'han-prev-core': '^1.0.15',
-        'han-prev-common': '^1.0.1',
-        'reflect-metadata': '^0.1.13'
+        "han-prev-core": "^1.0.15",
+        "han-prev-common": "^1.0.1",
+        "reflect-metadata": "^0.1.13",
       },
-      devDependencies: fastMode ? {
-        '@types/node': '^20.10.0',
-        'typescript': '^5.3.0',
-        'han-prev-testing': '^1.0.15',
-        'glob': '^10.3.0'
-      } : {
-        '@types/node': '^20.10.0',
-        '@typescript-eslint/eslint-plugin': '^6.0.0',
-        '@typescript-eslint/parser': '^6.0.0',
-        'eslint': '^8.42.0',
-        'eslint-config-prettier': '^9.0.0',
-        'eslint-plugin-prettier': '^5.0.0',
-        'glob': '^10.3.0',
-        'han-prev-testing': '^1.0.15',
-        'nodemon': '^3.0.0',
-        'prettier': '^3.0.0',
-        'rimraf': '^5.0.0',
-        'ts-node': '^10.9.0',
-        'tsconfig-paths': '^4.2.0',
-        'typescript': '^5.3.0'
-      },
-      keywords: ['han-framework', 'nodejs', 'typescript'],
-      author: '',
-      license: 'UNLICENSED'
+      devDependencies: fastMode
+        ? {
+            "@types/node": "^20.10.0",
+            typescript: "^5.3.0",
+            "han-prev-testing": "^1.0.15",
+            glob: "^10.3.0",
+          }
+        : {
+            "@types/node": "^20.10.0",
+            "@typescript-eslint/eslint-plugin": "^6.0.0",
+            "@typescript-eslint/parser": "^6.0.0",
+            eslint: "^8.42.0",
+            "eslint-config-prettier": "^9.0.0",
+            "eslint-plugin-prettier": "^5.0.0",
+            glob: "^10.3.0",
+            "han-prev-testing": "^1.0.15",
+            nodemon: "^3.0.0",
+            prettier: "^3.0.0",
+            rimraf: "^5.0.0",
+            "ts-node": "^10.9.0",
+            "tsconfig-paths": "^4.2.0",
+            typescript: "^5.3.0",
+          },
+      keywords: ["han-framework", "nodejs", "typescript"],
+      author: "",
+      license: "UNLICENSED",
     };
 
-    await fs.writeJson(path.join(projectPath, 'package.json'), packageJson, { spaces: 2 });
+    await fs.writeJson(path.join(projectPath, "package.json"), packageJson, {
+      spaces: 2,
+    });
   }
 
   private async generateTsConfig(projectPath: string) {
     const tsConfig = {
       compilerOptions: {
-        module: 'commonjs',
+        module: "commonjs",
         declaration: true,
         removeComments: true,
         emitDecoratorMetadata: true,
         experimentalDecorators: true,
         allowSyntheticDefaultImports: true,
-        target: 'ES2020',
+        target: "ES2020",
         sourceMap: true,
-        outDir: './dist',
-        baseUrl: './',
+        outDir: "./dist",
+        baseUrl: "./",
         incremental: true,
         skipLibCheck: true,
         strictNullChecks: false,
@@ -145,14 +158,16 @@ export class ProjectGenerator {
         forceConsistentCasingInFileNames: false,
         noFallthroughCasesInSwitch: false,
         paths: {
-          '@/*': ['src/*']
-        }
+          "@/*": ["src/*"],
+        },
       },
-      include: ['src/**/*'],
-      exclude: ['node_modules', 'dist']
+      include: ["src/**/*"],
+      exclude: ["node_modules", "dist"],
     };
 
-    await fs.writeJson(path.join(projectPath, 'tsconfig.json'), tsConfig, { spaces: 2 });
+    await fs.writeJson(path.join(projectPath, "tsconfig.json"), tsConfig, {
+      spaces: 2,
+    });
   }
 
   private async generateGitIgnore(projectPath: string) {
@@ -216,7 +231,7 @@ logs
 *.log
 `;
 
-    await fs.writeFile(path.join(projectPath, '.gitignore'), gitIgnore);
+    await fs.writeFile(path.join(projectPath, ".gitignore"), gitIgnore);
   }
 
   private async generateReadme(projectPath: string, projectName: string) {
@@ -272,11 +287,11 @@ npm run test:cov
 This project is [MIT licensed](LICENSE).
 `;
 
-    await fs.writeFile(path.join(projectPath, 'README.md'), readme);
+    await fs.writeFile(path.join(projectPath, "README.md"), readme);
   }
 
   private async generateSourceStructure(projectPath: string) {
-    const srcPath = path.join(projectPath, 'src');
+    const srcPath = path.join(projectPath, "src");
 
     // Create only src directory - no empty subdirectories
     await fs.ensureDir(srcPath);
@@ -297,7 +312,7 @@ async function bootstrap() {
 bootstrap().catch(console.error);
 `;
 
-    await fs.writeFile(path.join(srcPath, 'index.ts'), indexTs);
+    await fs.writeFile(path.join(srcPath, "index.ts"), indexTs);
 
     // Generate app.module.ts
     const appModuleTs = `import { Module } from 'han-prev-core';
@@ -311,7 +326,7 @@ import { AppService } from './app.service';
 export class AppModule {}
 `;
 
-    await fs.writeFile(path.join(srcPath, 'app.module.ts'), appModuleTs);
+    await fs.writeFile(path.join(srcPath, "app.module.ts"), appModuleTs);
 
     // Generate app.controller.ts
     const appControllerTs = `import { Controller, Get, Post, Body, Param } from 'han-prev-core';
@@ -353,7 +368,10 @@ export class AppController {
 }
 `;
 
-    await fs.writeFile(path.join(srcPath, 'app.controller.ts'), appControllerTs);
+    await fs.writeFile(
+      path.join(srcPath, "app.controller.ts"),
+      appControllerTs,
+    );
 
     // Generate app.service.ts
     const appServiceTs = `import { Injectable } from 'han-prev-core';
@@ -426,7 +444,7 @@ export class AppService {
 }
 `;
 
-    await fs.writeFile(path.join(srcPath, 'app.service.ts'), appServiceTs);
+    await fs.writeFile(path.join(srcPath, "app.service.ts"), appServiceTs);
   }
 
   private async generateEnvFiles(projectPath: string) {
@@ -444,32 +462,38 @@ JWT_SECRET=your-secret-key
 API_PREFIX=api
 `;
 
-    await fs.writeFile(path.join(projectPath, '.env.example'), envExample);
+    await fs.writeFile(path.join(projectPath, ".env.example"), envExample);
   }
 
   private async generateTsBuildConfig(projectPath: string) {
     const tsBuildConfig = {
-      extends: './tsconfig.json',
+      extends: "./tsconfig.json",
       compilerOptions: {
         removeComments: true,
         declaration: false,
-        sourceMap: false
+        sourceMap: false,
       },
-      exclude: ['node_modules', 'test', 'dist', '**/*.test.ts']
+      exclude: ["node_modules", "test", "dist", "**/*.test.ts"],
     };
 
-    await fs.writeJson(path.join(projectPath, 'tsconfig.build.json'), tsBuildConfig, { spaces: 2 });
+    await fs.writeJson(
+      path.join(projectPath, "tsconfig.build.json"),
+      tsBuildConfig,
+      { spaces: 2 },
+    );
   }
 
   private async generateDevConfig(projectPath: string) {
     const nodemonConfig = {
-      watch: ['src'],
-      ext: 'ts',
-      ignore: ['src/**/*.test.ts'],
-      exec: 'ts-node src/index.ts'
+      watch: ["src"],
+      ext: "ts",
+      ignore: ["src/**/*.test.ts"],
+      exec: "ts-node src/index.ts",
     };
 
-    await fs.writeJson(path.join(projectPath, 'nodemon.json'), nodemonConfig, { spaces: 2 });
+    await fs.writeJson(path.join(projectPath, "nodemon.json"), nodemonConfig, {
+      spaces: 2,
+    });
   }
 
   private async generateLintConfig(projectPath: string) {
@@ -500,37 +524,41 @@ API_PREFIX=api
 };
 `;
 
-    await fs.writeFile(path.join(projectPath, '.eslintrc.js'), eslintConfig);
+    await fs.writeFile(path.join(projectPath, ".eslintrc.js"), eslintConfig);
   }
 
   private async generatePrettierConfig(projectPath: string) {
     const prettierConfig = {
       singleQuote: true,
-      trailingComma: 'all',
+      trailingComma: "all",
       tabWidth: 2,
       semi: true,
-      printWidth: 100
+      printWidth: 100,
     };
 
-    await fs.writeJson(path.join(projectPath, '.prettierrc'), prettierConfig, { spaces: 2 });
+    await fs.writeJson(path.join(projectPath, ".prettierrc"), prettierConfig, {
+      spaces: 2,
+    });
   }
 
   private async generateJestConfig(projectPath: string) {
     // Han Framework uses its own testing framework - no Jest needed!
     // This creates a placeholder for compatibility
     const testConfig = {
-      "name": "han-framework-tests",
-      "description": "Han Framework uses its own revolutionary testing framework",
-      "testCommand": "npm run test",
-      "e2eCommand": "npm run test:e2e",
-      "framework": "han-test"
+      name: "han-framework-tests",
+      description: "Han Framework uses its own revolutionary testing framework",
+      testCommand: "npm run test",
+      e2eCommand: "npm run test:e2e",
+      framework: "han-test",
     };
 
-    await fs.writeJson(path.join(projectPath, 'test.config.json'), testConfig, { spaces: 2 });
+    await fs.writeJson(path.join(projectPath, "test.config.json"), testConfig, {
+      spaces: 2,
+    });
   }
 
   private async generateTestStructure(projectPath: string) {
-    const testPath = path.join(projectPath, 'test');
+    const testPath = path.join(projectPath, "test");
     await fs.ensureDir(testPath);
 
     // Generate unit test using Han Testing Framework with proper DI
@@ -620,7 +648,10 @@ suite('AppController', () => {
 });
 `;
 
-    await fs.writeFile(path.join(projectPath, 'src/app.controller.spec.ts'), appControllerSpec);
+    await fs.writeFile(
+      path.join(projectPath, "src/app.controller.spec.ts"),
+      appControllerSpec,
+    );
 
     // Generate E2E test using Han Testing Framework with DI and proper typing
     const e2eTest = `// 🚀 Han Framework E2E Testing with DI
@@ -729,92 +760,11 @@ suite('AppController (e2e)', () => {
 });
 `;
 
-    await fs.writeFile(path.join(testPath, 'app.e2e-spec.ts'), e2eTest);
+    await fs.writeFile(path.join(testPath, "app.e2e-spec.ts"), e2eTest);
 
     // No external testing dependencies required - Han Framework manages everything internally
-    console.log('✨ Generated pure Han Framework test structure - zero external dependencies');
-  }
-
-  private async generateTestRunner(projectPath: string) {
-    const scriptsPath = path.join(projectPath, 'scripts');
-    await fs.ensureDir(scriptsPath);
-
-    const testRunner = `#!/usr/bin/env ts-node
-import { execSync } from 'child_process';
-import * as fs from 'fs';
-import * as path from 'path';
-import { glob } from 'glob';
-
-const isE2E = process.argv.includes('--e2e');
-const pattern = isE2E ? 'test/**/*.e2e-spec.ts' : 'src/**/*.spec.ts';
-
-console.log(\`\\n🧪 Running \${isE2E ? 'E2E' : 'unit'} tests...\\n\`);
-
-const startTime = Date.now();
-let passedCount = 0;
-let failedCount = 0;
-const failedTests: string[] = [];
-
-// Find all test files
-const testFiles = glob.sync(pattern, {
-  cwd: process.cwd(),
-  absolute: true
-});
-
-if (testFiles.length === 0) {
-  console.log('⚠️  No test files found matching pattern:', pattern);
-  process.exit(0);
-}
-
-console.log(\`Found \${testFiles.length} test file(s)\\n\`);
-
-// Run each test file
-for (const testFile of testFiles) {
-  const relativePath = path.relative(process.cwd(), testFile);
-
-  try {
-    // Capture output to suppress individual test summaries
-    execSync(\`npx ts-node "\${testFile}"\`, {
-      stdio: 'pipe',
-      encoding: 'utf-8'
-    });
-
-    console.log(\`✅ \${relativePath}\`);
-    passedCount++;
-  } catch (error: any) {
-    console.log(\`❌ \${relativePath}\`);
-    if (error.stdout) {
-      console.log(error.stdout.toString());
-    }
-    if (error.stderr) {
-      console.error(error.stderr.toString());
-    }
-    failedCount++;
-    failedTests.push(relativePath);
-  }
-}
-
-const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-
-// Print summary
-console.log('\\n' + '═'.repeat(50));
-console.log(\`\\n📊 Test Summary\\n\`);
-console.log(\`  Total:  \${testFiles.length}\`);
-console.log(\`  ✅ Passed: \${passedCount}\`);
-console.log(\`  ❌ Failed: \${failedCount}\`);
-console.log(\`  ⏱️  Duration: \${duration}s\\n\`);
-
-if (failedCount > 0) {
-  console.log('Failed tests:');
-  failedTests.forEach(test => console.log(\`  - \${test}\`));
-  console.log('');
-  process.exit(1);
-} else {
-  console.log('🎉 All tests passed!\\n');
-  process.exit(0);
-}
-`;
-
-    await fs.writeFile(path.join(scriptsPath, 'test-runner.ts'), testRunner);
+    console.log(
+      "✨ Generated pure Han Framework test structure - zero external dependencies",
+    );
   }
 }

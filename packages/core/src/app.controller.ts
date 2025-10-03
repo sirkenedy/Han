@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Param } from './decorators';
-import { AppService, User } from './app.service';
+import { Controller, Get, Post, Body, Param } from "./decorators";
+import { AppService, User } from "./app.service";
 
 interface CreateUserDto {
   name: string;
@@ -14,60 +14,60 @@ export class AppController {
   getHello() {
     return {
       message: this.appService.getHello(),
-      framework: 'Han Framework',
-      version: '1.0.0',
+      framework: "Han Framework",
+      version: "1.0.0",
       features: [
-        '🚀 Zero configuration',
-        '🛡️ Security by default',
-        '⚡ Lightning fast',
-        '🔧 Developer friendly',
-        '📦 Full TypeScript support',
-        '🎯 NestJS compatible'
-      ]
+        "🚀 Zero configuration",
+        "🛡️ Security by default",
+        "⚡ Lightning fast",
+        "🔧 Developer friendly",
+        "📦 Full TypeScript support",
+        "🎯 NestJS compatible",
+      ],
     };
   }
 
-  @Get('health')
+  @Get("health")
   getHealth() {
     return this.appService.getHealthStatus();
   }
 
-  @Get('info')
+  @Get("info")
   getInfo() {
     return this.appService.getApplicationInfo();
   }
 
-  @Get('users')
+  @Get("users")
   getUsers() {
     return {
       data: this.appService.getUsers(),
-      count: this.appService.getUsers().length
+      count: this.appService.getUsers().length,
     };
   }
 
-  @Get('users/:id')
-  getUser(@Param('id') id: string) {
+  @Get("users/:id")
+  getUser(@Param("id") id: string) {
     const user = this.appService.getUserById(parseInt(id));
     if (!user) {
-      return { error: 'User not found', statusCode: 404 };
+      return { error: "User not found", statusCode: 404 };
     }
     return { data: user };
   }
 
-  @Post('users')
+  @Post("users")
   createUser(@Body() userData: CreateUserDto) {
     try {
       const newUser = this.appService.createUser(userData);
       return {
-        message: 'User created successfully',
+        message: "User created successfully",
         data: newUser,
-        statusCode: 201
+        statusCode: 201,
       };
     } catch (error: any) {
       return {
-        error: 'Failed to create user',
+        error: "Failed to create user",
         message: error.message,
-        statusCode: 400
+        statusCode: 400,
       };
     }
   }

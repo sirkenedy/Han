@@ -1,4 +1,4 @@
-import { MetadataStorage, METADATA_KEYS } from './metadata';
+import { MetadataStorage, METADATA_KEYS } from "./metadata";
 
 export interface ModuleMetadata {
   imports?: any[];

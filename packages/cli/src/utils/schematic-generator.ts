@@ -1,5 +1,5 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import * as fs from "fs-extra";
+import * as path from "path";
 
 export interface GenerateOptions {
   dryRun: boolean;
@@ -8,39 +8,60 @@ export interface GenerateOptions {
 }
 
 export class SchematicGenerator {
-  async generateFiles(schematic: string, name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  async generateFiles(
+    schematic: string,
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const createdFiles: string[] = [];
 
     switch (schematic) {
-      case 'controller':
-        createdFiles.push(...await this.generateController(name, options, dryRun));
+      case "controller":
+        createdFiles.push(
+          ...(await this.generateController(name, options, dryRun)),
+        );
         break;
-      case 'service':
-        createdFiles.push(...await this.generateService(name, options, dryRun));
+      case "service":
+        createdFiles.push(
+          ...(await this.generateService(name, options, dryRun)),
+        );
         break;
-      case 'module':
-        createdFiles.push(...await this.generateModule(name, options, dryRun));
+      case "module":
+        createdFiles.push(
+          ...(await this.generateModule(name, options, dryRun)),
+        );
         break;
-      case 'middleware':
-        createdFiles.push(...await this.generateMiddleware(name, options, dryRun));
+      case "middleware":
+        createdFiles.push(
+          ...(await this.generateMiddleware(name, options, dryRun)),
+        );
         break;
-      case 'interceptor':
-        createdFiles.push(...await this.generateInterceptor(name, options, dryRun));
+      case "interceptor":
+        createdFiles.push(
+          ...(await this.generateInterceptor(name, options, dryRun)),
+        );
         break;
-      case 'guard':
-        createdFiles.push(...await this.generateGuard(name, options, dryRun));
+      case "guard":
+        createdFiles.push(...(await this.generateGuard(name, options, dryRun)));
         break;
-      case 'decorator':
-        createdFiles.push(...await this.generateDecorator(name, options, dryRun));
+      case "decorator":
+        createdFiles.push(
+          ...(await this.generateDecorator(name, options, dryRun)),
+        );
         break;
-      case 'interface':
-        createdFiles.push(...await this.generateInterface(name, options, dryRun));
+      case "interface":
+        createdFiles.push(
+          ...(await this.generateInterface(name, options, dryRun)),
+        );
         break;
-      case 'class':
-        createdFiles.push(...await this.generateClass(name, options, dryRun));
+      case "class":
+        createdFiles.push(...(await this.generateClass(name, options, dryRun)));
         break;
-      case 'resource':
-        createdFiles.push(...await this.generateResource(name, options, dryRun));
+      case "resource":
+        createdFiles.push(
+          ...(await this.generateResource(name, options, dryRun)),
+        );
         break;
       default:
         throw new Error(`Unknown schematic: ${schematic}`);
@@ -49,10 +70,19 @@ export class SchematicGenerator {
     return createdFiles;
   }
 
-  private async generateController(name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  private async generateController(
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const className = this.toPascalCase(name);
     const fileName = this.toKebabCase(name);
-    const filePath = path.join(process.cwd(), 'src', 'controllers', `${fileName}.controller.ts`);
+    const filePath = path.join(
+      process.cwd(),
+      "src",
+      "controllers",
+      `${fileName}.controller.ts`,
+    );
 
     const content = `import { Controller, Get, Post, Put, Delete, Body, Param, Query } from 'han-prev-core';
 
@@ -88,7 +118,12 @@ export class ${className}Controller {
     const files = [filePath];
 
     if (options.spec) {
-      const specPath = path.join(process.cwd(), 'src', 'controllers', `${fileName}.controller.spec.ts`);
+      const specPath = path.join(
+        process.cwd(),
+        "src",
+        "controllers",
+        `${fileName}.controller.spec.ts`,
+      );
       const specContent = `import { ${className}Controller } from './${fileName}.controller';
 
 describe('${className}Controller', () => {
@@ -119,10 +154,19 @@ describe('${className}Controller', () => {
     return files;
   }
 
-  private async generateService(name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  private async generateService(
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const className = this.toPascalCase(name);
     const fileName = this.toKebabCase(name);
-    const filePath = path.join(process.cwd(), 'src', 'services', `${fileName}.service.ts`);
+    const filePath = path.join(
+      process.cwd(),
+      "src",
+      "services",
+      `${fileName}.service.ts`,
+    );
 
     const content = `import { Injectable } from 'han-prev-core';
 
@@ -153,7 +197,12 @@ export class ${className}Service {
     const files = [filePath];
 
     if (options.spec) {
-      const specPath = path.join(process.cwd(), 'src', 'services', `${fileName}.service.spec.ts`);
+      const specPath = path.join(
+        process.cwd(),
+        "src",
+        "services",
+        `${fileName}.service.spec.ts`,
+      );
       const specContent = `import { ${className}Service } from './${fileName}.service';
 
 describe('${className}Service', () => {
@@ -184,10 +233,19 @@ describe('${className}Service', () => {
     return files;
   }
 
-  private async generateModule(name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  private async generateModule(
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const className = this.toPascalCase(name);
     const fileName = this.toKebabCase(name);
-    const filePath = path.join(process.cwd(), 'src', 'modules', `${fileName}.module.ts`);
+    const filePath = path.join(
+      process.cwd(),
+      "src",
+      "modules",
+      `${fileName}.module.ts`,
+    );
 
     const content = `import { Module } from 'han-prev-core';
 
@@ -206,10 +264,19 @@ export class ${className}Module {}
     return [filePath];
   }
 
-  private async generateMiddleware(name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  private async generateMiddleware(
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const className = this.toPascalCase(name);
     const fileName = this.toKebabCase(name);
-    const filePath = path.join(process.cwd(), 'src', 'middleware', `${fileName}.middleware.ts`);
+    const filePath = path.join(
+      process.cwd(),
+      "src",
+      "middleware",
+      `${fileName}.middleware.ts`,
+    );
 
     const content = `import { Injectable } from 'han-prev-core';
 import { HanMiddleware, MiddlewareFunction } from 'han-prev-common';
@@ -233,10 +300,19 @@ export class ${className}Middleware implements HanMiddleware {
     return [filePath];
   }
 
-  private async generateInterceptor(name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  private async generateInterceptor(
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const className = this.toPascalCase(name);
     const fileName = this.toKebabCase(name);
-    const filePath = path.join(process.cwd(), 'src', 'interceptors', `${fileName}.interceptor.ts`);
+    const filePath = path.join(
+      process.cwd(),
+      "src",
+      "interceptors",
+      `${fileName}.interceptor.ts`,
+    );
 
     const content = `import { Injectable } from 'han-prev-core';
 import { HanInterceptor, ExecutionContext } from 'han-prev-common';
@@ -262,10 +338,19 @@ export class ${className}Interceptor implements HanInterceptor {
     return [filePath];
   }
 
-  private async generateGuard(name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  private async generateGuard(
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const className = this.toPascalCase(name);
     const fileName = this.toKebabCase(name);
-    const filePath = path.join(process.cwd(), 'src', 'guards', `${fileName}.guard.ts`);
+    const filePath = path.join(
+      process.cwd(),
+      "src",
+      "guards",
+      `${fileName}.guard.ts`,
+    );
 
     const content = `import { Injectable } from 'han-prev-core';
 import { CanActivate, ExecutionContext } from 'han-prev-common';
@@ -287,10 +372,19 @@ export class ${className}Guard implements CanActivate {
     return [filePath];
   }
 
-  private async generateDecorator(name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  private async generateDecorator(
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const functionName = this.toPascalCase(name);
     const fileName = this.toKebabCase(name);
-    const filePath = path.join(process.cwd(), 'src', 'decorators', `${fileName}.decorator.ts`);
+    const filePath = path.join(
+      process.cwd(),
+      "src",
+      "decorators",
+      `${fileName}.decorator.ts`,
+    );
 
     const content = `import { createDecorator } from 'han-prev-core';
 
@@ -309,10 +403,19 @@ export const ${functionName} = createDecorator('${functionName.toLowerCase()}');
     return [filePath];
   }
 
-  private async generateInterface(name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  private async generateInterface(
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const interfaceName = this.toPascalCase(name);
     const fileName = this.toKebabCase(name);
-    const filePath = path.join(process.cwd(), 'src', 'interfaces', `${fileName}.interface.ts`);
+    const filePath = path.join(
+      process.cwd(),
+      "src",
+      "interfaces",
+      `${fileName}.interface.ts`,
+    );
 
     const content = `export interface ${interfaceName} {
   id: number;
@@ -330,10 +433,19 @@ export const ${functionName} = createDecorator('${functionName.toLowerCase()}');
     return [filePath];
   }
 
-  private async generateClass(name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  private async generateClass(
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const className = this.toPascalCase(name);
     const fileName = this.toKebabCase(name);
-    const filePath = path.join(process.cwd(), 'src', 'classes', `${fileName}.class.ts`);
+    const filePath = path.join(
+      process.cwd(),
+      "src",
+      "classes",
+      `${fileName}.class.ts`,
+    );
 
     const content = `export class ${className} {
   constructor() {
@@ -352,14 +464,23 @@ export const ${functionName} = createDecorator('${functionName.toLowerCase()}');
     return [filePath];
   }
 
-  private async generateResource(name: string, options: GenerateOptions, dryRun = false): Promise<string[]> {
+  private async generateResource(
+    name: string,
+    options: GenerateOptions,
+    dryRun = false,
+  ): Promise<string[]> {
     const className = this.toPascalCase(name);
     const fileName = this.toKebabCase(name);
     const variableName = name.toLowerCase();
     const files: string[] = [];
 
     // Generate module
-    const modulePath = path.join(process.cwd(), 'src', `${fileName}`, `${fileName}.module.ts`);
+    const modulePath = path.join(
+      process.cwd(),
+      "src",
+      `${fileName}`,
+      `${fileName}.module.ts`,
+    );
     const moduleContent = `import { Module } from 'han-prev-core';
 import { ${className}Controller } from './${fileName}.controller';
 import { ${className}Service } from './${fileName}.service';
@@ -373,7 +494,12 @@ export class ${className}Module {}
 `;
 
     // Generate controller
-    const controllerPath = path.join(process.cwd(), 'src', `${fileName}`, `${fileName}.controller.ts`);
+    const controllerPath = path.join(
+      process.cwd(),
+      "src",
+      `${fileName}`,
+      `${fileName}.controller.ts`,
+    );
     const controllerContent = `import { Controller, Get, Post, Put, Delete, Body, Param } from 'han-prev-core';
 import { ${className}Service } from './${fileName}.service';
 
@@ -419,7 +545,12 @@ export class ${className}Controller {
 `;
 
     // Generate service
-    const servicePath = path.join(process.cwd(), 'src', `${fileName}`, `${fileName}.service.ts`);
+    const servicePath = path.join(
+      process.cwd(),
+      "src",
+      `${fileName}`,
+      `${fileName}.service.ts`,
+    );
     const serviceContent = `import { Injectable } from 'han-prev-core';
 
 export interface ${className}Entity {
@@ -489,7 +620,12 @@ export class ${className}Service {
 
     // Generate test files if spec option is true
     if (options.spec) {
-      const controllerSpecPath = path.join(process.cwd(), 'src', `${fileName}`, `${fileName}.controller.spec.ts`);
+      const controllerSpecPath = path.join(
+        process.cwd(),
+        "src",
+        `${fileName}`,
+        `${fileName}.controller.spec.ts`,
+      );
       const controllerSpecContent = `// 🧪 Han Framework Unit Testing with DI
 import { ${className}Controller } from './${fileName}.controller';
 import { ${className}Service } from './${fileName}.service';
@@ -575,7 +711,12 @@ suite('${className}Controller', () => {
 });
 `;
 
-      const serviceSpecPath = path.join(process.cwd(), 'src', `${fileName}`, `${fileName}.service.spec.ts`);
+      const serviceSpecPath = path.join(
+        process.cwd(),
+        "src",
+        `${fileName}`,
+        `${fileName}.service.spec.ts`,
+      );
       const serviceSpecContent = `// 🧪 Han Framework Unit Testing with DI
 import { ${className}Service } from './${fileName}.service';
 import {
@@ -680,14 +821,14 @@ suite('${className}Service', () => {
   private toPascalCase(str: string): string {
     return str
       .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => word.toUpperCase())
-      .replace(/\s+/g, '')
-      .replace(/-/g, '');
+      .replace(/\s+/g, "")
+      .replace(/-/g, "");
   }
 
   private toKebabCase(str: string): string {
     return str
-      .replace(/([a-z])([A-Z])/g, '$1-$2')
+      .replace(/([a-z])([A-Z])/g, "$1-$2")
       .toLowerCase()
-      .replace(/\s+/g, '-');
+      .replace(/\s+/g, "-");
   }
 }

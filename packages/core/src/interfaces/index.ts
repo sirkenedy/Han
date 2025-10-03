@@ -1,2 +1,2 @@
-export * from './common.types';
-export * from './interceptor.interface';
+export * from "./common.types";
+export * from "./interceptor.interface";
