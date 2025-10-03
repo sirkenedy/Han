@@ -15,7 +15,8 @@
     }
   },
   "scripts": {
-    "build": "rimraf dist && tsc",
+    "build": "npm run format && rimraf dist && tsc",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "dev": "tsc --watch",
     "prepublishOnly": "npm run build"
   },
@@ -52,8 +53,9 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
-    "rimraf": "^5.0.0"
+    "prettier": "^3.6.2",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=16.0.0"

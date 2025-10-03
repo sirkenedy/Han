@@ -6,12 +6,20 @@ import chalk from "chalk";
  * Get the latest version of a package from the local monorepo
  * Falls back to the version specified if package.json is not found
  */
-function getLocalPackageVersion(packageName: string, fallbackVersion: string): string {
+function getLocalPackageVersion(
+  packageName: string,
+  fallbackVersion: string,
+): string {
   try {
     // Try to read the package.json from the sibling package
-    const packageJsonPath = path.join(__dirname, '../../../', packageName.replace('han-prev-', ''), 'package.json');
+    const packageJsonPath = path.join(
+      __dirname,
+      "../../../",
+      packageName.replace("han-prev-", ""),
+      "package.json",
+    );
     if (fs.existsSync(packageJsonPath)) {
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
       return `^${packageJson.version}`;
     }
   } catch (error) {
@@ -126,7 +134,10 @@ export class ProjectGenerator {
         ? {
             "@types/node": "^20.10.0",
             typescript: "^5.3.0",
-            "han-prev-testing": getLocalPackageVersion("han-prev-testing", "^1.0.17"),
+            "han-prev-testing": getLocalPackageVersion(
+              "han-prev-testing",
+              "^1.0.17",
+            ),
             glob: "^10.3.0",
           }
         : {
@@ -137,7 +148,10 @@ export class ProjectGenerator {
             "eslint-config-prettier": "^9.0.0",
             "eslint-plugin-prettier": "^5.0.0",
             glob: "^10.3.0",
-            "han-prev-testing": getLocalPackageVersion("han-prev-testing", "^1.0.17"),
+            "han-prev-testing": getLocalPackageVersion(
+              "han-prev-testing",
+              "^1.0.17",
+            ),
             nodemon: "^3.0.0",
             prettier: "^3.0.0",
             rimraf: "^5.0.0",

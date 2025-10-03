@@ -100,16 +100,16 @@ export class RouterFactory {
 
   private static combinePaths(basePath: string, routePath: string): string {
     // Ensure basePath starts with /
-    let cleanBase = basePath || '';
-    if (cleanBase && !cleanBase.startsWith('/')) {
-      cleanBase = '/' + cleanBase;
+    let cleanBase = basePath || "";
+    if (cleanBase && !cleanBase.startsWith("/")) {
+      cleanBase = "/" + cleanBase;
     }
     // Remove trailing slash from basePath
-    cleanBase = cleanBase.replace(/\/$/, '');
+    cleanBase = cleanBase.replace(/\/$/, "");
 
     // Handle empty route path (e.g., @Get() with no path)
-    if (!routePath || routePath === '') {
-      return cleanBase || '/';
+    if (!routePath || routePath === "") {
+      return cleanBase || "/";
     }
 
     // Ensure route path starts with /

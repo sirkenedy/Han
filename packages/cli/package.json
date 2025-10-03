@@ -15,7 +15,8 @@
     "han": "./bin/han.js"
   },
   "scripts": {
-    "build": "rimraf dist && tsc",
+    "build": "npm run format && rimraf dist && tsc",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "prepublishOnly": "npm run build"
@@ -45,21 +46,22 @@
     "README.md"
   ],
   "dependencies": {
-    "commander": "^11.0.0",
+    "boxen": "^5.1.2",
     "chalk": "^4.1.2",
-    "inquirer": "^8.2.6",
-    "fs-extra": "^11.1.1",
-    "ora": "^5.4.1",
+    "commander": "^11.0.0",
     "figlet": "^1.6.0",
-    "boxen": "^5.1.2"
+    "fs-extra": "^11.1.1",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/inquirer": "^8.2.6",
-    "@types/fs-extra": "^11.0.0",
     "@types/figlet": "^1.5.6",
-    "typescript": "^5.0.0",
-    "rimraf": "^5.0.0"
+    "@types/fs-extra": "^11.0.0",
+    "@types/inquirer": "^8.2.6",
+    "@types/node": "^20.0.0",
+    "prettier": "^3.6.2",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=16.0.0"

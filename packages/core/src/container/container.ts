@@ -8,7 +8,7 @@ interface Provider {
   useValue?: any;
   useFactory?: (...args: any[]) => any | Promise<any>;
   inject?: string[];
-  scope?: 'singleton' | 'transient';
+  scope?: "singleton" | "transient";
 }
 
 class Container {
@@ -18,7 +18,10 @@ class Container {
   private metadataCache = new Map<any, any[]>(); // Cache for parameter types
   private dependencyCache = new Map<string, any[]>(); // Cache for resolved dependencies
   private asyncProviders = new Map<string, Promise<any>>(); // Cache for async factory providers
-  private lifecycleHooks = new Map<any, { onModuleInit?: () => any; onModuleDestroy?: () => any }>();
+  private lifecycleHooks = new Map<
+    any,
+    { onModuleInit?: () => any; onModuleDestroy?: () => any }
+  >();
 
   register<T>(
     token: string,
@@ -45,7 +48,7 @@ class Container {
   }
 
   registerProvider(provider: Provider): void {
-    const isSingleton = provider.scope !== 'transient'; // Default to singleton for backward compatibility
+    const isSingleton = provider.scope !== "transient"; // Default to singleton for backward compatibility
 
     if (provider.useValue) {
       this.register(provider.provide, () => provider.useValue, true);
@@ -246,7 +249,7 @@ class Container {
 
     // Call onModuleInit on all instances that have it
     for (const instance of this.singletons.values()) {
-      if (instance && typeof instance.onModuleInit === 'function') {
+      if (instance && typeof instance.onModuleInit === "function") {
         const result = instance.onModuleInit();
         if (result instanceof Promise) {
           initPromises.push(result);
@@ -265,7 +268,7 @@ class Container {
 
     // Call onModuleDestroy on all instances that have it
     for (const instance of this.singletons.values()) {
-      if (instance && typeof instance.onModuleDestroy === 'function') {
+      if (instance && typeof instance.onModuleDestroy === "function") {
         const result = instance.onModuleDestroy();
         if (result instanceof Promise) {
           destroyPromises.push(result);
