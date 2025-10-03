@@ -6,7 +6,9 @@ interface Provider {
   provide: string;
   useClass?: any;
   useValue?: any;
+  useFactory?: (...args: any[]) => any | Promise<any>;
   inject?: string[];
+  scope?: 'singleton' | 'transient';
 }
 
 class Container {
@@ -15,6 +17,8 @@ class Container {
   private processedModules = new Set<any>();
   private metadataCache = new Map<any, any[]>(); // Cache for parameter types
   private dependencyCache = new Map<string, any[]>(); // Cache for resolved dependencies
+  private asyncProviders = new Map<string, Promise<any>>(); // Cache for async factory providers
+  private lifecycleHooks = new Map<any, { onModuleInit?: () => any; onModuleDestroy?: () => any }>();
 
   register<T>(
     token: string,
@@ -41,8 +45,30 @@ class Container {
   }
 
   registerProvider(provider: Provider): void {
+    const isSingleton = provider.scope !== 'transient'; // Default to singleton for backward compatibility
+
     if (provider.useValue) {
       this.register(provider.provide, () => provider.useValue, true);
+    } else if (provider.useFactory) {
+      // Support for factory providers (sync and async)
+      this.register(
+        provider.provide,
+        () => {
+          const dependencies =
+            provider.inject?.map((dep) => this.resolve(dep)) || [];
+          const result = provider.useFactory!(...dependencies);
+
+          // Handle async factories - store promise and mark for later resolution
+          if (result instanceof Promise) {
+            if (!this.asyncProviders.has(provider.provide)) {
+              this.asyncProviders.set(provider.provide, result);
+            }
+          }
+
+          return result;
+        },
+        isSingleton,
+      );
     } else if (provider.useClass) {
       this.register(
         provider.provide,
@@ -51,7 +77,7 @@ class Container {
             provider.inject?.map((dep) => this.resolve(dep)) || [];
           return new provider.useClass(...dependencies);
         },
-        true,
+        isSingleton,
       );
     }
   }
@@ -142,25 +168,36 @@ class Container {
   }
 
   registerModule(moduleClass: any): void {
+    // Check if it's a dynamic module (has module property)
+    const isDynamicModule = moduleClass && moduleClass.module;
+    const actualModule = isDynamicModule ? moduleClass.module : moduleClass;
+
     // Avoid processing the same module multiple times
-    if (this.processedModules.has(moduleClass)) {
+    if (this.processedModules.has(actualModule)) {
       return;
     }
-    this.processedModules.add(moduleClass);
+    this.processedModules.add(actualModule);
 
-    // Get module metadata from decorator
-    const moduleMetadata = MetadataStorage.get<ModuleMetadata>(
-      moduleClass.prototype,
-      METADATA_KEYS.MODULE,
-    );
+    let moduleMetadata: ModuleMetadata | undefined;
 
-    if (!moduleMetadata) {
-      throw new Error(
-        `Module ${moduleClass.name} is missing @Module decorator`,
+    if (isDynamicModule) {
+      // Dynamic module - use the metadata directly from the object
+      moduleMetadata = moduleClass;
+    } else {
+      // Static module - get metadata from decorator
+      moduleMetadata = MetadataStorage.get<ModuleMetadata>(
+        actualModule.prototype,
+        METADATA_KEYS.MODULE,
       );
     }
 
-    // Register imported modules first
+    if (!moduleMetadata) {
+      throw new Error(
+        `Module ${actualModule.name} is missing @Module decorator or DynamicModule metadata`,
+      );
+    }
+
+    // Register imported modules first (supports both static and dynamic modules)
     if (moduleMetadata.imports) {
       moduleMetadata.imports.forEach((importedModule: any) => {
         this.registerModule(importedModule);
@@ -199,6 +236,60 @@ class Container {
       moduleClass.prototype,
       METADATA_KEYS.MODULE,
     );
+  }
+
+  /**
+   * Call lifecycle hook onModuleInit on all registered providers and controllers
+   */
+  async callOnModuleInit(): Promise<void> {
+    const initPromises: Promise<any>[] = [];
+
+    // Call onModuleInit on all instances that have it
+    for (const instance of this.singletons.values()) {
+      if (instance && typeof instance.onModuleInit === 'function') {
+        const result = instance.onModuleInit();
+        if (result instanceof Promise) {
+          initPromises.push(result);
+        }
+      }
+    }
+
+    await Promise.all(initPromises);
+  }
+
+  /**
+   * Call lifecycle hook onModuleDestroy on all registered providers and controllers
+   */
+  async callOnModuleDestroy(): Promise<void> {
+    const destroyPromises: Promise<any>[] = [];
+
+    // Call onModuleDestroy on all instances that have it
+    for (const instance of this.singletons.values()) {
+      if (instance && typeof instance.onModuleDestroy === 'function') {
+        const result = instance.onModuleDestroy();
+        if (result instanceof Promise) {
+          destroyPromises.push(result);
+        }
+      }
+    }
+
+    await Promise.all(destroyPromises);
+  }
+
+  /**
+   * Resolve all async providers to ensure they are initialized
+   */
+  async resolveAsyncProviders(): Promise<void> {
+    if (this.asyncProviders.size === 0) return;
+
+    // Wait for all async providers to resolve
+    const entries = Array.from(this.asyncProviders.entries());
+    const results = await Promise.all(entries.map(([_, promise]) => promise));
+
+    // Store resolved values in singletons cache
+    entries.forEach(([token, _], index) => {
+      this.singletons.set(token, results[index]);
+    });
   }
 }
 

@@ -151,6 +151,9 @@ export class HanFactory {
       this.bootstrapModule(),
     ]);
 
+    // Resolve all async providers before setting up routes
+    await container.resolveAsyncProviders();
+
     // CRITICAL: Setup optional middleware (CORS, Helmet) BEFORE routes
     // Express middleware order matters - middleware must come before routes
     this.setupOptionalMiddleware();
@@ -161,6 +164,9 @@ export class HanFactory {
 
     // Error handling must be last to catch all errors
     this.setupErrorHandling();
+
+    // Call lifecycle hooks on all providers
+    await container.callOnModuleInit();
 
     // Automatically setup shutdown hooks if enabled
     const app = this.createApplicationInstance();
@@ -258,14 +264,17 @@ export class HanFactory {
         }, gracefulTimeout);
 
         try {
-          // Step 1: Execute all registered shutdown callbacks
+          // Step 1: Call lifecycle hooks on all providers
+          await container.callOnModuleDestroy();
+
+          // Step 2: Execute all registered shutdown callbacks
           // These allow application code to clean up resources (close DB connections, etc.)
           const shutdownPromises = Array.from(this.shutdownCallbacks).map(
             (callback) => Promise.resolve(callback()),
           );
           await Promise.allSettled(shutdownPromises);
 
-          // Step 2: Close the HTTP server
+          // Step 3: Close the HTTP server
           // This stops accepting new connections and waits for existing requests to finish
           if (this.server) {
             await new Promise<void>((resolve) => {

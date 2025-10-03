@@ -9,6 +9,7 @@ export interface DynamicModule {
   controllers?: any[];
   imports?: any[];
   exports?: any[];
+  global?: boolean;
 }
 
 export interface ModuleMetadata {
@@ -47,6 +48,23 @@ export interface HanMiddleware {
 }
 
 export type MiddlewareFunction = (req: any, res: any, next: any) => void;
+
+// Lifecycle hooks
+export interface OnModuleInit {
+  onModuleInit(): void | Promise<void>;
+}
+
+export interface OnModuleDestroy {
+  onModuleDestroy(): void | Promise<void>;
+}
+
+export interface OnApplicationBootstrap {
+  onApplicationBootstrap(): void | Promise<void>;
+}
+
+export interface OnApplicationShutdown {
+  onApplicationShutdown(signal?: string): void | Promise<void>;
+}
 
 // Common decorators
 export const CONTROLLER_METADATA = "controller";
