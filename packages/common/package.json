@@ -1,6 +1,6 @@
 {
   "name": "han-prev-common",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Common utilities and interfaces for Han Framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
