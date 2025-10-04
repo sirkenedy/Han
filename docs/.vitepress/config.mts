@@ -7,11 +7,14 @@ export default defineConfig({
   ignoreDeadLinks: true,
 
   head: [
-    ['link', { rel: 'icon', href: '/logo.svg' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/Han/favicon.svg' }],
+    ['link', { rel: 'alternate icon', href: '/Han/logo.svg' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/Han/logo.svg' }],
     ['meta', { name: 'theme-color', content: '#E63946' }],
     ['meta', { name: 'og:type', content: 'website' }],
     ['meta', { name: 'og:title', content: 'Han Framework' }],
     ['meta', { name: 'og:description', content: 'A modern, developer-friendly Node.js framework' }],
+    ['meta', { name: 'og:image', content: '/Han/logo.svg' }],
   ],
 
   themeConfig: {
