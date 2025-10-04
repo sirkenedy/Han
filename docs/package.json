@@ -1,0 +1,18 @@
+{
+  "name": "han-framework-docs",
+  "version": "1.0.0",
+  "description": "Complete documentation for the Han Framework - A modern, developer-friendly Node.js framework",
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "keywords": ["han-framework", "documentation", "nodejs", "typescript"],
+  "author": "Han Framework Team",
+  "license": "MIT",
+  "devDependencies": {
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.22"
+  }
+}

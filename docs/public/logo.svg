@@ -1,0 +1,8 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" rx="24" fill="#E63946"/>
+  <path d="M32 40H48V88H32V40Z" fill="white"/>
+  <path d="M56 40H72V88H56V40Z" fill="white"/>
+  <path d="M80 40H96V64H80V40Z" fill="white"/>
+  <path d="M32 64H96V72H32V64Z" fill="white"/>
+  <text x="64" y="110" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="white">HAN</text>
+</svg>
