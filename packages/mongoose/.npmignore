@@ -1,0 +1,31 @@
+# Source files
+src/
+tsconfig.json
+
+# Development files
+*.spec.ts
+*.test.ts
+.vscode/
+.idea/
+
+# Documentation (keep README.md)
+PRODUCTION_REVIEW.md
+COMPARISON.md
+IMPROVEMENTS_SUMMARY.md
+DOCUMENTATION_SUMMARY.md
+
+# Build artifacts
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies (not needed in published package)
+node_modules/

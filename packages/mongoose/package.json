@@ -1,0 +1,51 @@
+{
+  "name": "han-prev-mongoose",
+  "version": "1.1.0",
+  "description": "Production-ready MongoDB integration for Han Framework with multi-database support, cross-database transactions, and comprehensive ACID guarantees",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "han",
+    "han-framework",
+    "mongoose",
+    "mongodb",
+    "orm",
+    "database",
+    "decorators",
+    "multi-database",
+    "cross-database",
+    "transactions",
+    "acid",
+    "two-phase-commit",
+    "typescript",
+    "dependency-injection"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "ACID_COMPLIANCE.md"
+  ],
+  "author": "Han Framework Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "han-prev-core": "^1.0.0",
+    "han-prev-common": "^1.0.0",
+    "mongoose": "^8.0.0",
+    "reflect-metadata": "^0.1.13 || ^0.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "reflect-metadata": "^0.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sirkenedy/han.git",
+    "directory": "packages/mongoose"
+  }
+}
