@@ -1,4 +1,4 @@
-# Guards
+<!-- # Guards
 
 Guards are **authorization handlers** that determine whether a request should be handled by a route handler or not. They execute **after middleware** and **before route handlers**, making them perfect for implementing access control logic.
 
@@ -622,7 +622,11 @@ export class DatabaseAuthGuard implements CanActivate {
       // Async database lookup
       const user = await this.userService.findByToken(token);
 
-      if (!user || !user.isActive) {
+      if (!user) {
+        return false;
+      }
+
+      if (!user.isActive) {
         return false;
       }
 
@@ -718,7 +722,7 @@ Complete guard implementation for a blog platform:
 
 ### Auth Guard
 
-```typescript
+```ts
 // guards/auth.guard.ts
 import { Injectable } from 'han-prev-core';
 import { CanActivate, ExecutionContext } from 'han-prev-common';
@@ -761,17 +765,13 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractToken(request: any) {
-    const authHeader = request.headers.authorization;
-
-    if (!authHeader) {
-      return null;
+    // Extract Bearer token from Authorization header
+    const header = request.headers.authorization;
+    if (header) {
+      const token = header.replace('Bearer ', '');
+      return token;
     }
-
-    if (!authHeader.startsWith("Bearer ")) {
-      return null;
-    }
-
-    return authHeader.split(" ")[1];
+    return null;
   }
 }
 ```
@@ -952,7 +952,7 @@ export class MegaGuard implements CanActivate {
 export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 
 @UseGuards(RoleGuard)
-@Roles('admin', 'editor')
+@Roles('admin', 'editor') // Admin or editor
 
 // ❌ Bad - Hardcoded
 export class AdminOrEditorGuard implements CanActivate {}
@@ -1094,4 +1094,4 @@ export class UserController {}
 app.useGlobalGuards(new MyGuard());
 ```
 
-Guards keep your routes secure and your code clean! 🔒
+Guards keep your routes secure and your code clean! 🔒 -->

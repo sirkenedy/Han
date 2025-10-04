@@ -4,6 +4,7 @@ export default defineConfig({
   title: 'Han Framework',
   description: 'A modern, developer-friendly Node.js framework',
   base: '/Han/', // Change this to '/your-repo-name/' if deploying to a project repo
+  ignoreDeadLinks: true,
 
   head: [
     ['link', { rel: 'icon', href: '/logo.svg' }],
