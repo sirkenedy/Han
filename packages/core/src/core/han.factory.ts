@@ -3,7 +3,7 @@ import * as express from "express";
 import { Express } from "express";
 import { container } from "../container/container";
 import { AppFactory } from "./app.factory";
-import { RouteMapper, EnvironmentDetector } from "../utils";
+import { RouteMapper, EnvironmentDetector, EnvLoader } from "../utils";
 import { errorHandler } from "../middleware/error.middleware";
 import {
   HanInterceptor,
@@ -127,6 +127,9 @@ export class HanFactory {
     moduleClass: any,
     options: HanApplicationOptions = {},
   ): Promise<HanApplication> {
+    // Auto-load environment variables before bootstrapping
+    EnvLoader.autoLoad();
+
     const factory = new HanFactory(moduleClass, options);
     return await factory.bootstrap();
   }
@@ -135,6 +138,9 @@ export class HanFactory {
     moduleClass: any,
     options: HanApplicationOptions = {},
   ): Promise<HanApplication> {
+    // Auto-load environment variables before bootstrapping
+    EnvLoader.autoLoad();
+
     const factory = new HanFactory(moduleClass, {
       ...options,
       microservice: true,

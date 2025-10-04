@@ -642,7 +642,7 @@ NODE_ENV=development
 
 ```typescript
 // index.ts
-import 'dotenv/config';
+// .env is automatically loaded by Han Framework!
 
 const port = process.env.PORT || 3000;
 await app.listen(port);

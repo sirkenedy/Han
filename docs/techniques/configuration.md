@@ -4,9 +4,11 @@ Learn how to manage application configuration, environment variables, and settin
 
 ## Environment Variables
 
-### Basic Setup
+### Automatic Loading (Recommended)
 
-Create a `.env` file in your project root:
+**Han Framework automatically loads your `.env` files** - no manual imports needed! 🎉
+
+Just create a `.env` file in your project root and start coding:
 
 ```bash
 # .env
@@ -17,23 +19,13 @@ JWT_SECRET=your-secret-key-here
 API_KEY=abc123xyz
 ```
 
-### Loading Environment Variables
-
-Install dotenv:
-
-```bash
-npm install dotenv
-```
-
-Load at application startup:
-
 ```typescript
 // index.ts
-import 'dotenv/config';
 import { HanFactory } from 'han-prev-core';
 import { AppModule } from './app.module';
 
 const bootstrap = async () => {
+  // .env is automatically loaded before app creation
   const app = await HanFactory.create(AppModule);
   const port = process.env.PORT || 3000;
 
@@ -42,6 +34,35 @@ const bootstrap = async () => {
 };
 
 bootstrap();
+```
+
+**No `dotenv` import required!** Han Framework automatically loads environment variables from the following files (in order of priority):
+
+1. `.env.{NODE_ENV}.local` (highest priority - e.g., `.env.production.local`)
+2. `.env.{NODE_ENV}` (e.g., `.env.production`, `.env.development`)
+3. `.env.local`
+4. `.env` (lowest priority)
+
+::: tip Why Multiple .env Files?
+- **`.env`** - Default values for all environments
+- **`.env.local`** - Local overrides (git-ignored)
+- **`.env.{NODE_ENV}`** - Environment-specific values (e.g., `.env.production`)
+- **`.env.{NODE_ENV}.local`** - Local environment-specific overrides (git-ignored)
+
+Variables defined in higher priority files override those in lower priority files.
+:::
+
+### Basic Setup
+
+Simply create a `.env` file - Han Framework handles the rest automatically:
+
+```bash
+# .env
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=mongodb://localhost:27017/myapp
+JWT_SECRET=your-secret-key-here
+API_KEY=abc123xyz
 ```
 
 ## Configuration Service
@@ -215,24 +236,24 @@ export class ConfigModule {}
 .env.test              # Testing
 ```
 
-### Loading Environment Files
+### How It Works
+
+Han Framework's automatic env loading happens before your application bootstraps:
 
 ```typescript
-// config/env.loader.ts
-import { config } from 'dotenv';
-import { resolve } from 'path';
+// This is handled automatically by HanFactory.create()
+// You don't need to write this code!
+import { EnvLoader } from 'han-prev-core';
 
-export function loadEnv() {
-  const env = process.env.NODE_ENV || 'development';
-  const envFile = `.env.${env}`;
-
-  // Load environment-specific file
-  config({ path: resolve(process.cwd(), envFile) });
-
-  // Load default .env file (lower priority)
-  config({ path: resolve(process.cwd(), '.env') });
-}
+// Auto-loads .env files based on NODE_ENV
+EnvLoader.autoLoad();
 ```
+
+The `EnvLoader` automatically:
+- ✅ Detects your current environment (`NODE_ENV`)
+- ✅ Loads the appropriate `.env` files in priority order
+- ✅ Prevents duplicate loading if called multiple times
+- ✅ Logs loaded files in development mode for debugging
 
 ## Validation
 
@@ -276,16 +297,17 @@ export function validateConfig() {
 
 ```typescript
 // index.ts
-import 'dotenv/config';
 import { validateConfig } from './config/validation';
 import { HanFactory } from 'han-prev-core';
 import { AppModule } from './app.module';
 
 const bootstrap = async () => {
-  // Validate configuration
+  // .env is automatically loaded by HanFactory.create()
+  const app = await HanFactory.create(AppModule);
+
+  // Validate configuration after app creation
   validateConfig();
 
-  const app = await HanFactory.create(AppModule);
   await app.listen(process.env.PORT || 3000);
 };
 
@@ -575,10 +597,12 @@ async function getVaultSecret(path: string) {
 ## Quick Reference
 
 ```typescript
-// Basic usage
+// .env files are automatically loaded by Han Framework! 🎉
+
+// Basic usage - just access process.env
 const value = process.env.MY_VAR;
 
-// With default
+// With default value
 const port = process.env.PORT || 3000;
 
 // Convert to number
@@ -587,16 +611,21 @@ const maxConnections = parseInt(process.env.MAX_CONNECTIONS || '100', 10);
 // Convert to boolean
 const isEnabled = process.env.FEATURE_ENABLED === 'true';
 
-// Required value
+// Required value with type assertion
 const apiKey = process.env.API_KEY!;
 if (!apiKey) throw new Error('API_KEY is required');
 
-// Load .env file
-import 'dotenv/config';
+// Environment-specific config
+const dbUrl = process.env.NODE_ENV === 'production'
+  ? process.env.PROD_DATABASE_URL
+  : process.env.DEV_DATABASE_URL;
 
-// Validate config
+// Validate config with Joi
 import Joi from 'joi';
 Joi.object({ PORT: Joi.number().required() }).validate(process.env);
+
+// No manual dotenv import needed!
+// import 'dotenv/config'; ❌ NOT NEEDED
 ```
 
 ## Next Steps

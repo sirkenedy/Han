@@ -300,20 +300,16 @@ NODE_ENV=development
 DATABASE_URL=mongodb://localhost:27017/myapp
 ```
 
-Install dotenv:
+**No need to install dotenv** - Han Framework automatically loads `.env` files! 🎉
 
-```bash
-npm install dotenv
-```
-
-Load it in your `index.ts`:
+Use it in your `index.ts`:
 
 ```typescript
-import 'dotenv/config';
 import { HanFactory } from 'han-prev-core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  // .env is automatically loaded before app creation
   const app = await HanFactory.create(AppModule);
 
   const port = process.env.PORT || 3000;
