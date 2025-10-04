@@ -14,7 +14,7 @@ hero:
       link: /introduction/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/your-org/han-framework
+      link: https://github.com/sirkenedy/han
 
 features:
   - icon: 🚀
@@ -139,9 +139,9 @@ Join our growing community:
 
 - 💬 [Discord](https://discord.gg/hanframework) - Chat with other developers
 - 🐦 [Twitter](https://twitter.com/hanframework) - Follow for updates
-- 🐛 [GitHub Issues](https://github.com/your-org/han-framework/issues) - Report bugs
-- 💡 [Discussions](https://github.com/your-org/han-framework/discussions) - Share ideas
+- 🐛 [GitHub Issues](https://github.com/sirkenedy/han/issues) - Report bugs
+- 💡 [Discussions](https://github.com/sirkenedy/han/discussions) - Share ideas
 
 ## License
 
-Han Framework is [MIT licensed](https://github.com/your-org/han-framework/blob/main/LICENSE).
+Han Framework is [MIT licensed](https://github.com/sirkenedy/han/blob/main/LICENSE).

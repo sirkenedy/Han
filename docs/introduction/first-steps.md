@@ -726,5 +726,5 @@ Keep building and exploring! Check out the [Fundamentals](/fundamentals/controll
 
 - 📖 [Documentation](/)
 - 💬 [Discord Community](https://discord.gg/hanframework)
-- 🐛 [Report Issues](https://github.com/your-org/han-framework/issues)
-- 💡 [Discussions](https://github.com/your-org/han-framework/discussions)
+- 🐛 [Report Issues](https://github.com/sirkenedy/han/issues)
+- 💡 [Discussions](https://github.com/sirkenedy/han/discussions)

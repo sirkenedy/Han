@@ -602,5 +602,5 @@ consumer.apply(Auth).forRoutes('users/*');
 
 ## Additional Resources
 
-- [MODULE_MIDDLEWARE_GUIDE.md](https://github.com/your-org/han-framework/blob/main/packages/core/MODULE_MIDDLEWARE_GUIDE.md)
+- [MODULE_MIDDLEWARE_GUIDE.md](https://github.com/sirkenedy/han/blob/main/packages/core/MODULE_MIDDLEWARE_GUIDE.md)
 - [NestJS Middleware](https://docs.nestjs.com/middleware) - Familiar pattern

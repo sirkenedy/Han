@@ -514,5 +514,5 @@ describe('UserService', () => {
 
 ## Additional Resources
 
-- [INJECTION_GUIDE.md](https://github.com/your-org/han-framework/blob/main/packages/core/INJECTION_GUIDE.md) - Detailed injection guide
-- [Custom Providers Example](https://github.com/your-org/han-framework/tree/main/examples/custom-providers)
+- [INJECTION_GUIDE.md](https://github.com/sirkenedy/han/blob/main/packages/core/INJECTION_GUIDE.md) - Detailed injection guide
+- [Custom Providers Example](https://github.com/sirkenedy/han/tree/main/examples/custom-providers)

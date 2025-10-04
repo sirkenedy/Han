@@ -1,10 +1,10 @@
-<!-- # Guards
+# Guards
 
-Guards are **authorization handlers** that determine whether a request should be handled by a route handler or not. They execute **after middleware** and **before route handlers**, making them perfect for implementing access control logic.
+Guards are classes that determine whether a request should be handled by a route handler. They execute **after middleware** but **before route handlers**, making them perfect for authorization and access control.
 
 ## What are Guards?
 
-Guards are classes that implement the `CanActivate` interface. They return a boolean (or Promise/Observable of boolean) to indicate whether the request should proceed:
+Guards implement the `CanActivate` interface and return a boolean value indicating whether the request should proceed.
 
 ```typescript
 import { Injectable } from 'han-prev-core';
@@ -18,52 +18,32 @@ export class AuthGuard implements CanActivate {
   }
 
   private validateRequest(request: any): boolean {
-    // Return true to allow, false to deny
     return !!request.user;
   }
 }
 ```
 
-## Middleware vs Guards
+## When to Use Guards
 
-Understanding the difference is crucial:
+### Middleware vs Guards
 
 | Feature | Middleware | Guards |
 |---------|-----------|---------|
-| **Purpose** | Request processing, logging, CORS | Authorization, access control |
+| **Purpose** | Request processing, logging | Authorization, access control |
 | **Returns** | `void` (calls `next()`) | `boolean` (allow/deny) |
-| **When** | Before route handler | After middleware, before handler |
-| **Access to** | `req`, `res`, `next` | `ExecutionContext` (richer context) |
-| **Best for** | Transformation, validation | Authorization decisions |
+| **Execution** | Before everything | After middleware, before handler |
+| **Best for** | Transformation, logging | Access control decisions |
 
-**Example flow:**
+**Execution flow:**
 ```
 Request → Middleware → Guards → Route Handler
 ```
 
-## Why Use Guards?
+### Benefits
 
-### 1. Authorization Logic
-
-Keep authorization separate from business logic:
-
+**1. Separation of Concerns**
 ```typescript
-// ❌ Bad - Authorization in controller
-@Controller('admin')
-export class AdminController {
-  @Get('users')
-  getUsers(@Headers('authorization') auth: string) {
-    if (!auth) {
-      throw new Error('Unauthorized');
-    }
-    if (!this.isAdmin(auth)) {
-      throw new Error('Unauthorized');
-    }
-    return this.userService.findAll();
-  }
-}
-
-// ✅ Good - Guard handles authorization
+// ✅ Good - Guard handles auth
 @Controller('admin')
 @UseGuards(AdminGuard)
 export class AdminController {
@@ -72,57 +52,35 @@ export class AdminController {
     return this.userService.findAll();
   }
 }
-```
 
-### 2. Reusability
-
-Use the same guard across multiple routes:
-
-```typescript
-@Injectable()
-export class RoleGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    return request.user?.role === 'admin';
+// ❌ Bad - Auth logic in controller
+@Controller('admin')
+export class AdminController {
+  @Get('users')
+  getUsers(@Headers('authorization') auth: string) {
+    if (!auth) throw new Error('Unauthorized');
+    return this.userService.findAll();
   }
 }
+```
 
-// Use everywhere
+**2. Reusability**
+```typescript
+// Use the same guard across multiple routes
 @Controller('admin')
-@UseGuards(RoleGuard)
+@UseGuards(AdminGuard)
 export class AdminController {}
 
 @Controller('settings')
-@UseGuards(RoleGuard)
+@UseGuards(AdminGuard)
 export class SettingsController {}
-```
-
-### 3. Clean Code
-
-Declarative authorization is easier to read:
-
-```typescript
-@Controller('posts')
-export class PostController {
-  @Get()
-  findAll() {} // Public
-
-  @Post()
-  @UseGuards(AuthGuard) // Protected
-  create() {}
-
-  @Delete(':id')
-  @UseGuards(AuthGuard, AdminGuard) // Admin only
-  delete() {}
-}
 ```
 
 ## Creating a Guard
 
-### Step 1: Create the Guard Class
+### Step 1: Create Guard Class
 
 ```typescript
-// auth.guard.ts
 import { Injectable } from 'han-prev-core';
 import { CanActivate, ExecutionContext } from 'han-prev-common';
 
@@ -131,12 +89,11 @@ export class AuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
 
-    // Check if user is authenticated
     if (!request.user) {
-      return false; // Deny access
+      return false;
     }
 
-    return true; // Allow access
+    return true;
   }
 }
 ```
@@ -144,14 +101,13 @@ export class AuthGuard implements CanActivate {
 ### Step 2: Register in Module
 
 ```typescript
-// app.module.ts
 import { Module } from 'han-prev-core';
 import { UserController } from './user.controller';
 import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   controllers: [UserController],
-  providers: [AuthGuard], // ✅ Register guard
+  providers: [AuthGuard],
 })
 export class AppModule {}
 ```
@@ -159,44 +115,39 @@ export class AppModule {}
 ### Step 3: Apply to Routes
 
 ```typescript
-// user.controller.ts
 import { Controller, Get, UseGuards } from 'han-prev-core';
 import { AuthGuard } from './guards/auth.guard';
 
 @Controller('users')
 export class UserController {
   @Get('profile')
-  @UseGuards(AuthGuard) // ✅ Protected route
+  @UseGuards(AuthGuard)
   getProfile() {
-    return { message: 'This is a protected route' };
+    return { message: 'Protected route' };
   }
 
   @Get('public')
   getPublic() {
-    return { message: 'This is a public route' };
+    return { message: 'Public route' };
   }
 }
 ```
 
 ## Execution Context
 
-Guards receive an `ExecutionContext` that provides access to request details:
+Guards receive an `ExecutionContext` with request details:
 
 ```typescript
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    // Get HTTP context
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-
-    // Get route handler details
     const handler = context.getHandler();
     const controllerClass = context.getClass();
 
-    // Your authorization logic
     const apiKey = request.headers['x-api-key'];
-    return apiKey === 'valid-api-key';
+    return apiKey === 'valid-key';
   }
 }
 ```
@@ -205,8 +156,6 @@ export class ApiKeyGuard implements CanActivate {
 
 ### 1. Authentication Guard
 
-Verify user is logged in:
-
 ```typescript
 import { Injectable } from 'han-prev-core';
 import { CanActivate, ExecutionContext } from 'han-prev-common';
@@ -215,16 +164,20 @@ import { CanActivate, ExecutionContext } from 'han-prev-common';
 export class AuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
+    const authHeader = request.headers.authorization;
 
-    // Check for valid session or token
-    const token = request.headers.authorization?.split(' ')[1];
-
-    if (!token) {
+    if (!authHeader) {
       return false;
     }
 
+    const parts = authHeader.split(' ');
+    if (parts.length !== 2) {
+      return false;
+    }
+
+    const token = parts[1];
+
     try {
-      // Verify token and attach user to request
       const user = this.verifyToken(token);
       request.user = user;
       return true;
@@ -234,15 +187,12 @@ export class AuthGuard implements CanActivate {
   }
 
   private verifyToken(token: string) {
-    // JWT verification logic
     return { id: 1, email: 'user@example.com', role: 'user' };
   }
 }
 ```
 
 ### 2. Role-Based Guard
-
-Check user has required role:
 
 ```typescript
 import { Injectable } from 'han-prev-core';
@@ -253,7 +203,6 @@ export class AdminGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
 
-    // Verify user exists and is admin
     if (!request.user) {
       return false;
     }
@@ -264,37 +213,32 @@ export class AdminGuard implements CanActivate {
 ```
 
 Usage:
-
 ```typescript
 @Controller('admin')
 export class AdminController {
   @Get('dashboard')
-  @UseGuards(AuthGuard, AdminGuard) // Both guards must pass
+  @UseGuards(AuthGuard, AdminGuard)
   getDashboard() {
     return { message: 'Admin dashboard' };
   }
 }
 ```
 
-### 3. Dynamic Role Guard
-
-Accept roles as parameters:
+### 3. Dynamic Roles Guard
 
 ```typescript
 import { Injectable, SetMetadata } from 'han-prev-core';
 import { CanActivate, ExecutionContext } from 'han-prev-common';
 
-// Decorator to set required roles
 export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    // Get required roles from metadata
     const requiredRoles = Reflect.getMetadata('roles', context.getHandler());
 
     if (!requiredRoles) {
-      return true; // No roles required
+      return true;
     }
 
     const request = context.switchToHttp().getRequest();
@@ -304,35 +248,31 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    // Check if user has any of the required roles
     return requiredRoles.some((role: string) => user.roles?.includes(role));
   }
 }
 ```
 
 Usage:
-
 ```typescript
 @Controller('posts')
 export class PostController {
   @Get()
-  findAll() {} // Public
+  findAll() {}
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles('editor', 'admin') // Either role works
+  @Roles('editor', 'admin')
   create() {}
 
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles('admin') // Admin only
+  @Roles('admin')
   delete() {}
 }
 ```
 
 ### 4. API Key Guard
-
-Validate API key:
 
 ```typescript
 import { Injectable } from 'han-prev-core';
@@ -348,7 +288,6 @@ export class ApiKeyGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
-
     const apiKey = request.headers['x-api-key'];
 
     if (!apiKey) {
@@ -361,8 +300,6 @@ export class ApiKeyGuard implements CanActivate {
 ```
 
 ### 5. IP Whitelist Guard
-
-Restrict by IP address:
 
 ```typescript
 import { Injectable } from 'han-prev-core';
@@ -378,8 +315,7 @@ export class IpWhitelistGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
-
-    const ip = request.ip ? request.ip : request.connection.remoteAddress;
+    const ip = request.ip;
 
     return this.whitelist.includes(ip);
   }
@@ -387,8 +323,6 @@ export class IpWhitelistGuard implements CanActivate {
 ```
 
 ### 6. Time-Based Guard
-
-Allow access during business hours:
 
 ```typescript
 import { Injectable } from 'han-prev-core';
@@ -401,7 +335,6 @@ export class BusinessHoursGuard implements CanActivate {
     const hour = now.getHours();
     const day = now.getDay();
 
-    // Monday-Friday (1-5), 9 AM - 5 PM
     const isWeekday = day >= 1 && day <= 5;
     const isBusinessHours = hour >= 9 && hour < 17;
 
@@ -410,15 +343,12 @@ export class BusinessHoursGuard implements CanActivate {
 }
 ```
 
-### 7. Permission-Based Guard
-
-Check fine-grained permissions:
+### 7. Permission Guard
 
 ```typescript
 import { Injectable, SetMetadata } from 'han-prev-core';
 import { CanActivate, ExecutionContext } from 'han-prev-common';
 
-// Decorator to set required permissions
 export const RequirePermissions = (...permissions: string[]) =>
   SetMetadata('permissions', permissions);
 
@@ -445,7 +375,6 @@ export class PermissionsGuard implements CanActivate {
       return false;
     }
 
-    // Check if user has ALL required permissions
     return requiredPermissions.every((permission: string) =>
       user.permissions.includes(permission)
     );
@@ -454,7 +383,6 @@ export class PermissionsGuard implements CanActivate {
 ```
 
 Usage:
-
 ```typescript
 @Controller('posts')
 export class PostController {
@@ -468,11 +396,6 @@ export class PostController {
   @RequirePermissions('posts.create')
   create() {}
 
-  @Put(':id')
-  @UseGuards(PermissionsGuard)
-  @RequirePermissions('posts.update')
-  update() {}
-
   @Delete(':id')
   @UseGuards(PermissionsGuard)
   @RequirePermissions('posts.delete', 'admin')
@@ -482,15 +405,13 @@ export class PostController {
 
 ## Applying Guards
 
-### 1. Route-Level Guards
-
-Apply to specific routes:
+### Route-Level
 
 ```typescript
 @Controller('users')
 export class UserController {
   @Get('profile')
-  @UseGuards(AuthGuard) // ✅ Only this route
+  @UseGuards(AuthGuard)
   getProfile() {
     return { message: 'Protected' };
   }
@@ -502,100 +423,58 @@ export class UserController {
 }
 ```
 
-### 2. Controller-Level Guards
-
-Apply to all routes in controller:
+### Controller-Level
 
 ```typescript
 @Controller('admin')
-@UseGuards(AuthGuard, AdminGuard) // ✅ All routes protected
+@UseGuards(AuthGuard, AdminGuard)
 export class AdminController {
-  @Get('users')     // Protected
+  @Get('users')
   getUsers() {}
 
-  @Get('settings')  // Protected
+  @Get('settings')
   getSettings() {}
 }
 ```
 
-### 3. Global Guards
-
-Apply to all routes in application:
+### Global Guards
 
 ```typescript
-// index.ts
 import { HanFactory } from 'han-prev-core';
 import { AppModule } from './app.module';
 import { AuthGuard } from './guards/auth.guard';
 
 const app = await HanFactory.create(AppModule);
-const expressApp = app.getHttpServer();
-
-// Global guard
 app.useGlobalGuards(new AuthGuard());
 
 await app.listen(3000);
 ```
 
-### 4. Multiple Guards
+## Guard Execution Order
 
-Chain multiple guards:
+Guards execute in this sequence:
 
+```
+1. Global Guards
+     ↓
+2. Controller Guards
+     ↓
+3. Route Guards
+     ↓
+4. Route Handler
+```
+
+Example:
 ```typescript
-@Controller('posts')
-export class PostController {
-  @Delete(':id')
-  @UseGuards(AuthGuard, AdminGuard, PermissionsGuard)
-  delete() {
-    // All guards must pass
-  }
-}
-```
+app.useGlobalGuards(new LoggerGuard());
 
-Guards execute in order:
-```
-AuthGuard → AdminGuard → PermissionsGuard → Route Handler
-```
-
-## Guards with Dependencies
-
-Inject services into guards:
-
-```typescript
-import { Injectable, Inject } from 'han-prev-core';
-import { CanActivate, ExecutionContext } from 'han-prev-common';
-import { UserService } from '../user/user.service';
-
-@Injectable()
-export class AuthGuard implements CanActivate {
-  constructor(
-    private userService: UserService,
-    @Inject('JWT_SERVICE')
-    private jwtService: any,
-  ) {}
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-
-    const token = request.headers.authorization?.split(' ')[1];
-
-    if (!token) {
-      return false;
-    }
-
-    try {
-      const payload = await this.jwtService.verify(token);
-      const user = await this.userService.findById(payload.userId);
-
-      if (!user) {
-        return false;
-      }
-
-      request.user = user;
-      return true;
-    } catch (error) {
-      return false;
-    }
+@Controller('admin')
+@UseGuards(AuthGuard)
+export class AdminController {
+  @Get('users')
+  @UseGuards(AdminGuard)
+  getUsers() {
+    // Execution: LoggerGuard → AuthGuard → AdminGuard → getUsers()
   }
 }
 ```
@@ -605,21 +484,24 @@ export class AuthGuard implements CanActivate {
 Handle asynchronous operations:
 
 ```typescript
+import { Injectable } from 'han-prev-core';
+import { CanActivate, ExecutionContext } from 'han-prev-common';
+
 @Injectable()
-export class DatabaseAuthGuard implements CanActivate {
+export class AsyncAuthGuard implements CanActivate {
   constructor(private userService: UserService) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
+    const authHeader = request.headers.authorization;
 
-    const token = request.headers.authorization?.split(' ')[1];
-
-    if (!token) {
+    if (!authHeader) {
       return false;
     }
 
+    const token = authHeader.split(' ')[1];
+
     try {
-      // Async database lookup
       const user = await this.userService.findByToken(token);
 
       if (!user) {
@@ -639,40 +521,45 @@ export class DatabaseAuthGuard implements CanActivate {
 }
 ```
 
-## Guard Execution Order
+## Guards with Dependencies
 
-Guards execute in this order:
-
-```
-1. Global Guards (app.useGlobalGuards)
-     ↓
-2. Controller Guards (@UseGuards on controller)
-     ↓
-3. Route Guards (@UseGuards on method)
-     ↓
-4. Route Handler (your method)
-```
-
-Example:
+Inject services into guards:
 
 ```typescript
-// 1. Global
-app.useGlobalGuards(new LoggerGuard());
+import { Injectable } from 'han-prev-core';
+import { CanActivate, ExecutionContext } from 'han-prev-common';
 
-// 2. Controller
-@Controller('admin')
-@UseGuards(AuthGuard)
-export class AdminController {
-  // 3. Route
-  @Get('users')
-  @UseGuards(AdminGuard)
-  getUsers() {
-    // 4. Finally executed!
+@Injectable()
+export class DatabaseAuthGuard implements CanActivate {
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService
+  ) {}
+
+  async canActivate(context: ExecutionContext) {
+    const request = context.switchToHttp().getRequest();
+    const token = request.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      return false;
+    }
+
+    try {
+      const payload = await this.jwtService.verify(token);
+      const user = await this.userService.findById(payload.sub);
+
+      if (!user) {
+        return false;
+      }
+
+      request.user = user;
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
 ```
-
-Execution: `LoggerGuard → AuthGuard → AdminGuard → getUsers()`
 
 ## Error Handling
 
@@ -680,12 +567,12 @@ Execution: `LoggerGuard → AuthGuard → AdminGuard → getUsers()`
 
 ```typescript
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class StrictAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
 
     if (!request.user) {
-      throw new Error('Unauthorized');
+      throw new Error('Unauthorized - Please log in');
     }
 
     return true;
@@ -716,70 +603,13 @@ export class CustomAuthGuard implements CanActivate {
 }
 ```
 
-## Real-World Example: Blog Platform
+## Real-World Example
 
-Complete guard implementation for a blog platform:
-
-### Auth Guard
-
-```ts
-// guards/auth.guard.ts
-import { Injectable } from 'han-prev-core';
-import { CanActivate, ExecutionContext } from 'han-prev-common';
-import { JwtService } from '../services/jwt.service';
-import { UserService } from '../user/user.service';
-
-@Injectable()
-export class AuthGuard implements CanActivate {
-  constructor(
-    private jwtService: JwtService,
-    private userService: UserService,
-  ) {}
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-
-    const token = this.extractToken(request);
-
-    if (!token) {
-      return false;
-    }
-
-    try {
-      const payload = await this.jwtService.verify(token);
-      const user = await this.userService.findById(payload.sub);
-
-      if (!user) {
-        return false;
-      }
-
-      if (!user.isActive) {
-        return false;
-      }
-
-      request.user = user;
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  private extractToken(request: any) {
-    // Extract Bearer token from Authorization header
-    const header = request.headers.authorization;
-    if (header) {
-      const token = header.replace('Bearer ', '');
-      return token;
-    }
-    return null;
-  }
-}
-```
+Complete blog platform authorization:
 
 ### Role Guard
 
 ```typescript
-// guards/role.guard.ts
 import { Injectable, SetMetadata } from 'han-prev-core';
 import { CanActivate, ExecutionContext } from 'han-prev-common';
 
@@ -806,19 +636,17 @@ export class RoleGuard implements CanActivate {
 }
 ```
 
-### Post Ownership Guard
+### Ownership Guard
 
 ```typescript
-// guards/post-ownership.guard.ts
 import { Injectable } from 'han-prev-core';
 import { CanActivate, ExecutionContext } from 'han-prev-common';
-import { PostService } from '../post/post.service';
 
 @Injectable()
 export class PostOwnershipGuard implements CanActivate {
   constructor(private postService: PostService) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
     const postId = request.params.id;
@@ -827,12 +655,10 @@ export class PostOwnershipGuard implements CanActivate {
       return false;
     }
 
-    // Admin can access all posts
     if (user.role === 'admin') {
       return true;
     }
 
-    // Check if user owns the post
     const post = await this.postService.findById(postId);
 
     if (!post) {
@@ -844,15 +670,13 @@ export class PostOwnershipGuard implements CanActivate {
 }
 ```
 
-### Usage
+### Using Guards
 
 ```typescript
-// post.controller.ts
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from 'han-prev-core';
-import { PostService } from './post.service';
-import { AuthGuard } from '../guards/auth.guard';
-import { RoleGuard, Roles } from '../guards/role.guard';
-import { PostOwnershipGuard } from '../guards/post-ownership.guard';
+import { Controller, Get, Post, Put, Delete, UseGuards } from 'han-prev-core';
+import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard, Roles } from './guards/role.guard';
+import { PostOwnershipGuard } from './guards/post-ownership.guard';
 
 @Controller('posts')
 export class PostController {
@@ -860,37 +684,35 @@ export class PostController {
 
   @Get()
   findAll() {
-    // Public - no guard
     return this.postService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    // Public - no guard
     return this.postService.findById(id);
   }
 
   @Post()
-  @UseGuards(AuthGuard) // Must be logged in
+  @UseGuards(AuthGuard)
   create(@Body() data: any) {
     return this.postService.create(data);
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard, PostOwnershipGuard) // Must own the post
+  @UseGuards(AuthGuard, PostOwnershipGuard)
   update(@Param('id') id: string, @Body() data: any) {
     return this.postService.update(id, data);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, PostOwnershipGuard) // Must own the post
+  @UseGuards(AuthGuard, PostOwnershipGuard)
   delete(@Param('id') id: string) {
     return this.postService.delete(id);
   }
 
   @Post(':id/publish')
   @UseGuards(AuthGuard, RoleGuard)
-  @Roles('editor', 'admin') // Editor or admin only
+  @Roles('editor', 'admin')
   publish(@Param('id') id: string) {
     return this.postService.publish(id);
   }
@@ -899,86 +721,72 @@ export class PostController {
 
 ## Best Practices
 
-### 1. Return Boolean
-
-Always return boolean or Promise<boolean>:
+### 1. Return Boolean Values
 
 ```typescript
 // ✅ Good
 @Injectable()
 export class AuthGuard implements CanActivate {
   canActivate(): boolean {
-    return true; // or false
+    return true;
   }
 }
 
 // ✅ Good - Async
 @Injectable()
 export class AuthGuard implements CanActivate {
-  async canActivate(): Promise<boolean> {
+  async canActivate() {
     return true;
-  }
-}
-
-// ❌ Bad
-@Injectable()
-export class AuthGuard implements CanActivate {
-  canActivate() {
-    // No return value
   }
 }
 ```
 
 ### 2. Single Responsibility
 
-One guard, one responsibility:
-
 ```typescript
 // ✅ Good - Separate guards
-export class AuthGuard implements CanActivate {} // Authentication
-export class RoleGuard implements CanActivate {} // Authorization
-export class RateLimitGuard implements CanActivate {} // Rate limiting
+export class AuthGuard implements CanActivate {}
+export class RoleGuard implements CanActivate {}
+export class RateLimitGuard implements CanActivate {}
 
 // ❌ Bad - Too many responsibilities
 export class MegaGuard implements CanActivate {
-  // Auth + Authorization + Rate limiting + More
+  // Auth + Authorization + Rate limiting
 }
 ```
 
-### 3. Use Metadata for Dynamic Guards
+### 3. Use Metadata for Configuration
 
 ```typescript
 // ✅ Good - Configurable
 export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 
 @UseGuards(RoleGuard)
-@Roles('admin', 'editor') // Admin or editor
+@Roles('admin', 'editor')
 
 // ❌ Bad - Hardcoded
 export class AdminOrEditorGuard implements CanActivate {}
 export class AdminOrModeratorGuard implements CanActivate {}
-// Too many similar guards
 ```
 
 ### 4. Handle Errors Gracefully
 
 ```typescript
-// ✅ Good
 @Injectable()
-export class AuthGuard implements CanActivate {
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+export class SafeAuthGuard implements CanActivate {
+  async canActivate(context: ExecutionContext) {
     try {
       const user = await this.validateToken();
       return !!user;
     } catch (error) {
       this.logger.error('Auth error:', error);
-      return false; // Deny on error
+      return false;
     }
   }
 }
 ```
 
-### 5. Inject Dependencies
+### 5. Use Dependency Injection
 
 ```typescript
 // ✅ Good
@@ -986,19 +794,17 @@ export class AuthGuard implements CanActivate {
 export class AuthGuard implements CanActivate {
   constructor(
     private userService: UserService,
-    private logger: LoggerService,
+    private logger: LoggerService
   ) {}
 }
 
 // ❌ Avoid
 export class AuthGuard implements CanActivate {
-  userService = new UserService(); // Hard to test
+  userService = new UserService();
 }
 ```
 
 ## Testing Guards
-
-Guards are easy to test in isolation:
 
 ```typescript
 import { AuthGuard } from './auth.guard';
@@ -1042,7 +848,7 @@ Use the CLI to generate guards:
 han generate guard auth
 ```
 
-Creates `src/guards/auth.guard.ts`:
+This creates:
 
 ```typescript
 import { Injectable } from 'han-prev-core';
@@ -1056,16 +862,10 @@ export class AuthGuard implements CanActivate {
 }
 ```
 
-## Next Steps
-
-- Learn about [Interceptors](/fundamentals/interceptors) for response transformation
-- Explore [Middleware](/fundamentals/middleware) for request processing
-- Check out [Pipes](/fundamentals/pipes) for data validation and transformation
-
 ## Quick Reference
 
 ```typescript
-// 1. Create guard
+// Create guard
 @Injectable()
 export class MyGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
@@ -1074,24 +874,30 @@ export class MyGuard implements CanActivate {
   }
 }
 
-// 2. Register in module
+// Register in module
 @Module({
   providers: [MyGuard],
 })
 export class MyModule {}
 
-// 3. Apply to route
+// Apply to route
 @Get()
 @UseGuards(MyGuard)
 findAll() {}
 
-// 4. Apply to controller
+// Apply to controller
 @Controller('users')
 @UseGuards(MyGuard)
 export class UserController {}
 
-// 5. Apply globally
+// Apply globally
 app.useGlobalGuards(new MyGuard());
 ```
 
-Guards keep your routes secure and your code clean! 🔒 -->
+## Next Steps
+
+- Learn about [Interceptors](/fundamentals/interceptors) for response transformation
+- Explore [Middleware](/fundamentals/middleware) for request processing
+- Check out [Pipes](/fundamentals/pipes) for data validation
+
+Guards keep your routes secure and your code clean! 🔒

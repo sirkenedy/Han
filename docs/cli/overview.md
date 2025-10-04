@@ -424,4 +424,4 @@ han generate --help
 
 - 📖 [Full CLI Reference](/cli/generators)
 - 💬 [Discord Community](https://discord.gg/hanframework)
-- 🐛 [Report CLI Issues](https://github.com/your-org/han-framework/issues)
+- 🐛 [Report CLI Issues](https://github.com/sirkenedy/han/issues)
