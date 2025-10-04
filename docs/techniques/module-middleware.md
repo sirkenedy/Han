@@ -2,7 +2,16 @@
 
 Module-level middleware is one of Han Framework's most powerful features, allowing you to configure middleware at the module level with fine-grained control over which routes they apply to.
 
+::: tip What You'll Learn
+- Why module middleware is better than global/route middleware for most use cases
+- How to apply middleware to specific controllers, routes, or HTTP methods
+- Advanced patterns like exclusions and multiple middleware groups
+- Real-world examples of module middleware in production apps
+:::
+
 ## Why Module Middleware?
+
+**The Problem:** Traditional middleware approaches force you to choose between "all routes" (global) or "single route" (decorator), with no middle ground.
 
 Traditional middleware approaches have limitations:
 
@@ -21,7 +30,7 @@ export class PostController { }
 export class CommentController { }
 ```
 
-Module middleware solves this:
+**The Solution:** Module middleware gives you the perfect middle ground - apply to a feature/module, not everything!
 
 ```typescript
 // ✅ Configure once for the entire module
@@ -32,10 +41,16 @@ export class AppModule implements HanModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes('*'); // All routes in module
+      .forRoutes('*'); // All routes in this module
   }
 }
 ```
+
+**Benefits:**
+- 🎯 **Targeted** - Apply only where needed, not globally
+- 🔧 **Organized** - Middleware configuration lives with the feature
+- ⚡ **Performant** - Only runs on relevant routes
+- 🛡️ **Secure** - Easier to ensure auth is applied correctly
 
 ## Quick Start
 

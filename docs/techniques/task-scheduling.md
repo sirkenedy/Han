@@ -4,11 +4,46 @@ Learn how to schedule and automate recurring tasks in your Han Framework applica
 
 ## Why Task Scheduling?
 
-Task scheduling allows you to:
-- **Automate repetitive tasks** - Run jobs at specific intervals
-- **Background processing** - Handle time-consuming operations
-- **Scheduled maintenance** - Clean up old data, generate reports
-- **Cron jobs** - Email notifications, backups, data synchronization
+**Not everything should run immediately.** Some tasks need to run at specific times or intervals, independent of user requests.
+
+**Real-World Scenarios:**
+
+**Scenario 1: Sending Digest Emails**
+```typescript
+// ❌ Without scheduling - sends on every request (bad!)
+@Post('subscribe')
+async subscribe(@Body() email: string) {
+  await this.emailService.sendWeeklyDigest(email);
+  return { message: 'Subscribed!' };
+}
+```
+
+```typescript
+// ✅ With scheduling - sends once per week to all users
+cron.schedule('0 9 * * MON', async () => {
+  const users = await this.userService.getAllSubscribed();
+  for (const user of users) {
+    await this.emailService.sendWeeklyDigest(user.email);
+  }
+});
+```
+
+**Common Use Cases:**
+- 📧 **Email Digests** - Daily/weekly summaries
+- 🧹 **Data Cleanup** - Delete old logs, expired sessions
+- 📊 **Report Generation** - Nightly analytics reports
+- 🔄 **Data Sync** - Sync with external APIs
+- 💾 **Backups** - Database backups at off-peak hours
+- 📈 **Analytics** - Calculate metrics, update dashboards
+- 🔔 **Reminders** - Send payment reminders, subscription renewals
+
+::: tip When to Use Task Scheduling
+- ✅ Tasks that run on a schedule (not triggered by users)
+- ✅ Background jobs that don't need immediate execution
+- ✅ Batch operations on large datasets
+- ❌ Real-time user-facing operations
+- ❌ Tasks that must run immediately
+:::
 
 ## Using node-cron
 

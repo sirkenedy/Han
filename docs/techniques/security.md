@@ -2,6 +2,26 @@
 
 Learn how to secure your Han Framework application against common security threats and vulnerabilities.
 
+## Why Security Matters
+
+**One security breach can destroy your business.** User data leaks, SQL injections, and XSS attacks make headlines every day. Don't be the next victim.
+
+**Common Security Threats:**
+- 🔓 **SQL Injection** - Malicious code in database queries
+- 🕸️ **Cross-Site Scripting (XSS)** - Injecting malicious scripts
+- 🔑 **Weak Authentication** - Easily guessable or stolen passwords
+- 📋 **Data Exposure** - Sensitive data visible in logs/errors
+- ⚡ **DDoS Attacks** - Overwhelming your server with requests
+- 🔐 **CSRF** - Forging requests from authenticated users
+
+::: danger Real Cost of Security Breaches
+- 💸 Average data breach costs **$4.35 million**
+- 📉 60% of small companies **go out of business** within 6 months of an attack
+- ⚖️ GDPR fines can reach **€20 million or 4% of global revenue**
+:::
+
+**The Good News:** Most attacks are preventable with basic security practices!
+
 ## Security Best Practices
 
 ### 1. Environment Variables
