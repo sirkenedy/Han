@@ -24,6 +24,7 @@ export default defineConfig({
       { text: 'Guide', link: '/introduction/what-is-han', activeMatch: '/introduction/' },
       { text: 'Fundamentals', link: '/fundamentals/controllers', activeMatch: '/fundamentals/' },
       { text: 'Techniques', link: '/techniques/middleware', activeMatch: '/techniques/' },
+      { text: 'OpenAPI', link: '/openapi/introduction', activeMatch: '/openapi/' },
       { text: 'CLI', link: '/cli/overview', activeMatch: '/cli/' },
       {
         text: 'v1.0',
@@ -94,6 +95,34 @@ export default defineConfig({
             { text: 'Overview', link: '/cli/overview' },
             { text: 'Usage', link: '/cli/usage' },
             { text: 'Generators', link: '/cli/generators' },
+          ]
+        }
+      ],
+
+      '/openapi/': [
+        {
+          text: 'Getting Started',
+          items: [
+            { text: 'Introduction', link: '/openapi/introduction' },
+            { text: 'Auto Type Detection', link: '/openapi/auto-detection' },
+            { text: 'Types and Parameters', link: '/openapi/types-and-parameters' },
+            { text: 'Operations', link: '/openapi/operations' },
+          ]
+        },
+        {
+          text: '🚀 Phase 1 Features',
+          items: [
+            { text: 'Live Contract Testing', link: '/openapi/live-contract-testing' },
+            { text: 'Example Harvester', link: '/openapi/example-harvester' },
+            { text: 'Performance Budgets', link: '/openapi/performance-budgets' },
+          ]
+        },
+        {
+          text: 'Advanced Topics',
+          items: [
+            { text: 'Security', link: '/openapi/security' },
+            { text: 'Decorators Reference', link: '/openapi/decorators' },
+            { text: 'vs NestJS Swagger', link: '/openapi/comparison-with-nestjs' },
           ]
         }
       ]

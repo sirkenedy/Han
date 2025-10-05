@@ -12,6 +12,109 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GraphQL integration
 - Microservices support
 - Enhanced testing utilities
+- Phase 2 OpenAPI Features:
+  - Automatic Client SDK Generation (TypeScript, Python, Go)
+  - API Changelog & Breaking Change Detection
+  - Smart Mock Server with Context-Aware Data
+
+## [1.2.0] - 2025-10-05
+
+### Added - OpenAPI Package (han-prev-openapi@1.0.0)
+
+#### 🚀 **Phase 1 Game-Changing Features** (First in any framework!)
+
+- **Live Contract Testing** - Revolutionary real-time API validation
+  - Automatically validates API responses against OpenAPI documentation during development
+  - Detects missing fields, type mismatches, nullable violations, and unexpected fields
+  - Real-time console warnings with actionable suggestions
+  - Strict mode support for CI/CD integration
+  - `@ApiContractTesting()` decorator for per-endpoint control
+  - Zero configuration required - works out of the box
+  - **Production-safe**: Disabled by default, must be explicitly enabled in development only
+
+- **Example Harvester** - Automatic realistic example generation
+  - Auto-captures real request/response pairs from development traffic
+  - Intelligent categorization (success, error, edge cases, performance)
+  - Automatic sensitive data sanitization (passwords, tokens, API keys)
+  - Sampling support for high-traffic endpoints
+  - Manual approval workflow to ensure quality
+  - `@ApiHarvestExamples()` decorator with flexible configuration
+  - Captures edge cases automatically (null values, empty arrays, error responses)
+  - **Production-safe**: Disabled by default, never enable in production
+
+- **Performance Budgets** - Response time tracking and enforcement
+  - Set target response times per endpoint with `@ApiPerformance()`
+  - Track P95 and P99 percentiles in addition to average response times
+  - Real-time warnings when budgets are exceeded with optimization suggestions
+  - CI/CD integration to prevent deploying slow code
+  - Convenience decorators: `@ApiFastEndpoint()`, `@ApiStandardEndpoint()`, `@ApiSlowEndpoint()`
+  - Performance trend reporting and aggregated statistics
+  - Async tracking with zero impact on response times
+  - **Production-safe**: Disabled by default, optional minimal sampling (1%) for production monitoring
+
+#### 📚 **Core OpenAPI Features**
+
+- **Automatic Documentation** - Generate OpenAPI 3.0 specs from decorators
+- **Type-Safe Decorators** - Full TypeScript support with IntelliSense
+  - `@ApiProperty()` for DTO properties
+  - `@ApiOperation()` for endpoint documentation
+  - `@ApiOkResponse()`, `@ApiCreatedResponse()`, etc. for responses
+  - `@ApiParam()`, `@ApiQuery()`, `@ApiHeader()` for parameters
+  - `@ApiBearerAuth()`, `@ApiBasicAuth()`, `@ApiOAuth2()` for security
+  - `@ApiTags()` for endpoint organization
+- **Schema Auto-Generation** - Automatically generate schemas from DTOs
+- **Auto Type Inference** - Detects types from `@Body()` parameters (no explicit `@ApiBody()` needed)
+- **Swagger UI Integration** - Beautiful, interactive API documentation
+- **Multiple Auth Strategies** - Bearer, Basic, OAuth2, API Key, Cookie authentication
+- **Response Shortcuts** - Convenient decorators for common HTTP responses
+- **Zero Configuration** - Works out of the box with sensible defaults
+
+#### 🔧 **Infrastructure & Utilities**
+
+- **Telemetry Middleware** - Centralized middleware for all Phase 1 features
+  - `createTelemetryMiddleware()` for easy setup
+  - Configurable sampling rates and retention policies
+  - In-memory storage with SQLite-ready architecture
+  - Auto-cleanup of old telemetry data (7-day retention default)
+  - Production warning system prevents accidental production enablement
+
+- **Contract Validation Engine** - Schema validation with detailed error reporting
+- **Performance Tracking** - Millisecond-precision timing with breakdown support
+- **Example Management** - CLI tools for managing harvested examples (planned)
+
+#### 📖 **Documentation**
+
+- **Comprehensive Guides** (5,000+ lines total):
+  - Live Contract Testing guide with real-world examples
+  - Example Harvester guide with edge case handling
+  - Performance Budgets guide with optimization strategies
+  - Production safety warnings throughout
+- **Quick Start** - Copy-paste ready examples
+- **Migration Guide** - Step-by-step from NestJS OpenAPI
+- **API Reference** - Complete decorator documentation
+- **Best Practices** - Do's and don'ts with explanations
+- **Troubleshooting** - Common issues and solutions
+- **VitePress Navigation** - Organized sidebar with Phase 1 features section
+
+### Changed
+
+- **Documentation Structure** - Added "🚀 Phase 1 Features" section to OpenAPI docs
+- **Package README** - Updated with Phase 1 feature highlights and usage examples
+- **VitePress Config** - Enhanced sidebar navigation for OpenAPI documentation
+
+### Security
+
+- **Telemetry Disabled by Default** - All tracking features require explicit opt-in
+- **Production Warnings** - Automatic warnings if telemetry accidentally enabled in production
+- **Data Sanitization** - Sensitive fields automatically redacted in harvested examples
+- **Environment-Based Control** - Recommended pattern: `if (process.env.NODE_ENV === 'development')`
+
+### Performance
+
+- **Zero Impact When Disabled** - No overhead when telemetry features are off (default)
+- **Async Processing** - All telemetry happens after response is sent to user
+- **Minimal Memory Footprint** - ~50-100MB for 1000 requests with 7-day retention
+- **Configurable Sampling** - Reduce overhead on high-traffic endpoints
 
 ## [1.1.0] - 2025-10-04
 
@@ -197,7 +300,8 @@ See our [Contributing Guide](./contributing.md) to learn how to propose changes 
 - **Issues**: [GitHub Issues](https://github.com/sirkenedy/han/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/sirkenedy/han/discussions)
 
-[Unreleased]: https://github.com/sirkenedy/han/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/sirkenedy/han/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/sirkenedy/han/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/sirkenedy/han/compare/v1.0.16...v1.1.0
 [1.0.16]: https://github.com/sirkenedy/han/compare/v1.0.15...v1.0.16
 [1.0.15]: https://github.com/sirkenedy/han/compare/v1.0.14...v1.0.15

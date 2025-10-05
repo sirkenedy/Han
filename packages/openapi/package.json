@@ -1,0 +1,57 @@
+{
+  "name": "han-prev-openapi",
+  "version": "1.0.0",
+  "description": "Advanced OpenAPI/Swagger integration for Han Framework with auto-generation and validation",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npm run format && rimraf dist && tsc",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "han",
+    "framework",
+    "openapi",
+    "swagger",
+    "api-documentation",
+    "typescript",
+    "nodejs",
+    "rest-api"
+  ],
+  "author": "Han Framework Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sirkenedy/Han.git",
+    "directory": "packages/openapi"
+  },
+  "homepage": "https://han-framework.dev",
+  "bugs": {
+    "url": "https://github.com/sirkenedy/Han/issues"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "han-prev-common": "^1.0.4",
+    "swagger-ui-express": "^5.0.0",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/swagger-ui-express": "^4.1.6",
+    "prettier": "^3.6.2",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "han-prev-core": "^1.0.0",
+    "typescript": "^4.8.0 || ^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
