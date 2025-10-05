@@ -12,6 +12,54 @@ OpenAPI (formerly Swagger) is a specification for describing REST APIs. It allow
 - **Test your API** - Use Swagger UI to test endpoints interactively
 - **Maintain consistency** - Keep documentation in sync with code
 
+## Installation
+
+Install the package using npm:
+
+```bash
+npm install han-prev-openapi
+```
+
+Or with yarn:
+
+```bash
+yarn add han-prev-openapi
+```
+
+Or with pnpm:
+
+```bash
+pnpm add han-prev-openapi
+```
+
+### Requirements
+
+- **Node.js**: >= 16.0.0
+- **TypeScript**: >= 4.8.0
+- **Han Framework**: `han-prev-core@^1.0.0`
+
+### Quick Start
+
+Once installed, you can start using it immediately:
+
+```typescript
+import { DocumentBuilder, SwaggerModule } from 'han-prev-openapi';
+import { HanFactory } from 'han-prev-core';
+
+const app = await HanFactory.create(AppModule);
+
+const config = new DocumentBuilder()
+  .setTitle('My API')
+  .setVersion('1.0')
+  .build();
+
+const document = SwaggerModule.createDocument(app, config, [UserController]);
+SwaggerModule.setup('/api-docs', app, document);
+
+await app.listen(3000);
+// 📚 Documentation available at http://localhost:3000/api-docs
+```
+
 ## Why Use Han OpenAPI?
 
 ### ✅ Automatic Documentation
@@ -75,9 +123,17 @@ SwaggerModule.setup('/api-docs', app, document);
 // That's it! Documentation is live at /api-docs
 ```
 
+### ✅ Game-Changing Features
+
+**Exclusive to Han** - features not found in any other framework:
+
+- **[Live Contract Testing](/openapi/live-contract-testing)** - Validates responses match docs in real-time
+- **[Example Harvester](/openapi/example-harvester)** - Auto-captures realistic examples from dev traffic
+- **[Performance Budgets](/openapi/performance-budgets)** - Tracks response times and warns on violations
+
 ### ✅ Enhanced Beyond NestJS
 
-Additional features not found in NestJS:
+Additional core features not found in NestJS:
 
 - **Better type inference** - Automatic detection from TypeScript types
 - **Convenience decorators** - `@ApiPropertyArray()`, `@ApiPropertyEnum()`
@@ -132,19 +188,9 @@ class CreateUserDto {
 create(@Body() dto: CreateUserDto) {}
 ```
 
-## Installation
-
-```bash
-npm install han-prev-openapi
-```
-
-Or with yarn:
-
-```bash
-yarn add han-prev-openapi
-```
-
 ## Basic Setup
+
+Now that you have the package installed, let's set up your first API documentation:
 
 ### 1. Create a DTO
 

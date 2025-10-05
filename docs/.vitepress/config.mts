@@ -110,7 +110,7 @@ export default defineConfig({
           ]
         },
         {
-          text: '🚀 Phase 1 Features',
+          text: 'Testing & Validation',
           items: [
             { text: 'Live Contract Testing', link: '/openapi/live-contract-testing' },
             { text: 'Example Harvester', link: '/openapi/example-harvester' },
