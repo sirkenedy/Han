@@ -21,6 +21,13 @@ export * from "./swagger-ui.setup";
 // Export constants
 export * from "./constants";
 
-// Export Phase 1 Features
+// Export Testing & Validation Features
 export * from "./middleware";
 export * from "./telemetry";
+
+// Export Developer Experience Features
+export * from "./playground/chain-storage";
+export * from "./playground/chain-executor";
+export * from "./generators/postman.generator";
+export * from "./generators/code-examples.generator";
+export * from "./swagger-ui.plugin";

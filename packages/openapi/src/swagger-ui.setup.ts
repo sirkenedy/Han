@@ -1,6 +1,8 @@
 import { Express, Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
 import { OpenAPIDocument } from "./interfaces/openapi.interface";
+import { DeveloperExperienceConfig } from "./interfaces/developer-experience.interface";
+import { createHanOpenAPIPlugin } from "./swagger-ui.plugin";
 
 export interface SwaggerUIOptions {
   /**
@@ -44,6 +46,12 @@ export interface SwaggerUIOptions {
    * Custom Swagger UI HTML
    */
   customJs?: string;
+
+  /**
+   * Developer Experience Features Configuration
+   * Enable request chaining, code examples, and Postman export
+   */
+  developerExperience?: DeveloperExperienceConfig;
 }
 
 /**
@@ -85,6 +93,12 @@ export class SwaggerModule {
       explorer: finalOptions.explorer !== false,
       ...finalOptions.swaggerOptions,
     };
+
+    // Add Developer Experience plugin if enabled
+    if (finalOptions.developerExperience) {
+      const plugin = createHanOpenAPIPlugin(finalOptions.developerExperience);
+      swaggerUiOptions.plugins = [...(swaggerUiOptions.plugins || []), plugin];
+    }
 
     const uiSetup = swaggerUi.setup(document, {
       customCss: finalOptions.customCss,

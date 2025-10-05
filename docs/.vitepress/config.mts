@@ -118,6 +118,14 @@ export default defineConfig({
           ]
         },
         {
+          text: 'Developer Experience',
+          items: [
+            { text: 'Request Chaining', link: '/openapi/request-chaining' },
+            { text: 'Postman Generator', link: '/openapi/postman-generator' },
+            { text: 'Code Examples', link: '/openapi/code-examples' },
+          ]
+        },
+        {
           text: 'Advanced Topics',
           items: [
             { text: 'Security', link: '/openapi/security' },

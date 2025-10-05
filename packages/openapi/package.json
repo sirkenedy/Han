@@ -1,6 +1,6 @@
 {
   "name": "han-prev-openapi",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Advanced OpenAPI/Swagger integration for Han Framework with auto-generation and validation",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

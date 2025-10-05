@@ -17,6 +17,181 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - API Changelog & Breaking Change Detection
   - Smart Mock Server with Context-Aware Data
 
+## [1.3.0] - 2025-10-05
+
+### Added - OpenAPI Developer Experience Features
+
+#### 🎨 **Request Chaining Playground** (Exclusive to Han!)
+
+- **Automatic Request Saving** with localStorage persistence
+  - Auto-saves every executed request in Swagger UI
+  - Data persists across browser refreshes and restarts
+  - Configurable storage limits (default: 100 requests, 50 chains)
+  - Export/import functionality for sharing workflows
+- **Variable Extraction** from responses
+  - Extract values from response body, headers, or status
+  - Support for nested paths (e.g., `data.user.id`)
+  - Array index access (e.g., `tags[0]`)
+  - Value transformations (toString, toNumber, toBoolean, custom)
+- **Request Chain Execution** with dependency injection
+  - Chain multiple requests with extracted variables
+  - Automatic dependency injection into headers, body, query, path params
+  - Template transformations (e.g., `Bearer ${value}`)
+  - Sequential execution with error handling
+- **Storage Management**
+  - `ChainStorageManager` for localStorage operations
+  - `ChainExecutor` for executing request chains
+  - Storage statistics and cleanup utilities
+  - Browser-based persistence (no backend required)
+- **Swagger UI Integration**
+  - "💾 Saved Requests" toolbar button
+  - "🔗 Chains" management interface
+  - Request history with timestamps and durations
+  - Auto-save toggle in configuration
+
+#### 📮 **Postman Collection Generator** (Exclusive to Han!)
+
+- **One-Click Export** from Swagger UI
+  - Export entire API as Postman Collection 2.1
+  - Download directly from "📮 Export to Postman" button
+  - No manual collection creation needed
+- **Complete Collection Generation**
+  - All endpoints organized by `@ApiTags()`
+  - Request bodies with example values
+  - Query parameters and path variables
+  - Headers including authentication
+- **Automatic Test Scripts**
+  - Status code validation tests
+  - Response time tests (< 500ms)
+  - JSON response validation
+  - Customizable test templates
+- **Example Responses**
+  - Multiple response examples per endpoint
+  - Success and error response examples
+  - Proper status codes and headers
+  - Generated from OpenAPI schemas
+- **Authentication Support**
+  - Bearer token configuration
+  - API Key setup (header or query)
+  - Basic authentication
+  - OAuth2 flows
+- **Environment Variables**
+  - Customizable base URLs
+  - Authentication tokens
+  - Path parameter values
+  - Query parameter defaults
+- **Programmatic API**
+  - `PostmanGenerator` class for custom generation
+  - `generateCollection()` method
+  - `exportAsJson()` for JSON string export
+  - `downloadCollection()` for file downloads
+- **CI/CD Integration**
+  - Generate collections in build pipelines
+  - Automatic documentation export
+  - Version-controlled collections
+
+#### 📋 **Code Examples Generator** (10+ Languages!)
+
+- **Multi-Language Support** - Generate client code in:
+  - TypeScript (fetch, axios, node-fetch)
+  - JavaScript (fetch, axios)
+  - Python (requests, httpx, urllib)
+  - Go (net/http)
+  - Java (HttpClient)
+  - C# (HttpClient)
+  - PHP (cURL)
+  - Ruby (Net::HTTP)
+  - Swift (URLSession)
+  - curl commands
+- **Copy-Paste Ready Code**
+  - Working code examples for every endpoint
+  - Proper HTTP method usage
+  - Correct request headers
+  - JSON request bodies
+  - Path and query parameters
+- **Type Definitions**
+  - TypeScript interfaces from DTOs
+  - Type-safe request/response handling
+  - IntelliSense support
+- **Error Handling**
+  - Try-catch blocks included
+  - HTTP error status handling
+  - Network error handling
+  - Framework-specific error handling
+- **Authentication Examples**
+  - Bearer token in headers
+  - API Key authentication
+  - Basic authentication with base64
+  - OAuth2 examples
+- **Explanatory Comments**
+  - Step-by-step comments
+  - Parameter descriptions
+  - Return value documentation
+- **Framework Flexibility**
+  - Choose preferred HTTP library per language
+  - fetch vs axios for TypeScript/JavaScript
+  - requests vs httpx for Python
+- **Swagger UI Integration**
+  - "📋 Code Examples" button per endpoint
+  - Language tabs for easy switching
+  - "📋 Copy" button for clipboard
+  - Dependency information display
+- **Programmatic API**
+  - `CodeExamplesGenerator` class
+  - `generateExamples()` for all languages
+  - `generateExample()` for single language
+  - Framework configuration options
+
+#### 🔧 **Infrastructure & Integration**
+
+- **Custom Swagger UI Plugin**
+  - `createHanOpenAPIPlugin()` factory function
+  - Wraps Swagger UI components
+  - Adds custom toolbar buttons
+  - Injects code examples into operations
+  - Request interception for auto-saving
+  - Modal system for rich UI
+- **Developer Experience Configuration Interface**
+  - `DeveloperExperienceConfig` for all developer experience features
+  - Granular enable/disable controls
+  - Framework-specific options
+  - Language selection
+  - Storage limits configuration
+- **SwaggerModule Integration**
+  - `developerExperience` option in `SwaggerModule.setup()`
+  - Automatic plugin injection
+  - Zero-config defaults
+  - Developer-friendly API
+
+#### 📖 **Documentation**
+
+- **Comprehensive Guides** (10,000+ lines total):
+  - Request Chaining Playground guide with real-world workflows
+  - Postman Generator guide with CI/CD examples
+  - Code Examples guide with all 10+ languages
+- **Quick Start Examples** - Copy-paste ready setup
+- **Real-World Use Cases**:
+  - E-commerce checkout flow (request chaining)
+  - Blog post creation workflow
+  - Complete API export to Postman
+  - Multi-language client examples
+- **VitePress Navigation** - New "Developer Experience" section
+- **Best Practices** - Security, performance, and usage guidelines
+
+### Changed
+
+- **Swagger UI Setup** - Added `developerExperience` configuration option
+- **Package Exports** - Added developer experience modules to exports
+- **README** - Added developer experience features section with examples
+- **VitePress Config** - New "Developer Experience" sidebar category
+
+### Performance
+
+- **Zero Runtime Overhead** - Developer experience features disabled by default
+- **Browser-Only Storage** - No backend infrastructure required
+- **Lazy Loading** - Plugin loaded only when enabled
+- **Efficient Generation** - Code examples generated on-demand
+
 ## [1.2.0] - 2025-10-05
 
 ### Added - OpenAPI Package (han-prev-openapi@1.0.0)
@@ -300,7 +475,8 @@ See our [Contributing Guide](./contributing.md) to learn how to propose changes 
 - **Issues**: [GitHub Issues](https://github.com/sirkenedy/han/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/sirkenedy/han/discussions)
 
-[Unreleased]: https://github.com/sirkenedy/han/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/sirkenedy/han/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/sirkenedy/han/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/sirkenedy/han/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/sirkenedy/han/compare/v1.0.16...v1.1.0
 [1.0.16]: https://github.com/sirkenedy/han/compare/v1.0.15...v1.0.16

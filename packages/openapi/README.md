@@ -449,6 +449,255 @@ Estimated improvement: 650ms → 230ms ✓
 
 ---
 
+## 🎨 Developer Experience Features
+
+> **Supercharge your development workflow**
+
+✨ **[Request Chaining Playground](#request-chaining-playground)** - Chain API requests with automatic variable extraction
+✨ **[Postman Collection Generator](#postman-generator)** - Export your entire API as Postman collection with one click
+✨ **[Code Examples Generator](#code-examples)** - Generate client code in 10+ languages automatically
+
+### Request Chaining Playground
+
+**Stop manual copy-pasting between requests.** The Request Chaining Playground lets you save requests, extract variables from responses, and chain multiple requests together with automatic dependency injection. All data persists in localStorage across browser refreshes.
+
+#### Quick Example
+
+```typescript
+SwaggerModule.setup('/api-docs', app, document, {
+  developerExperience: {
+    requestChaining: {
+      enabled: true,
+      autoSave: true,              // Auto-save every request
+      maxSavedRequests: 100,       // Keep last 100 requests
+    },
+  },
+});
+```
+
+**Use in Swagger UI:**
+
+1. Execute any request (e.g., `POST /auth/login`)
+2. Request is automatically saved to localStorage
+3. Click **"💾 Saved Requests"** to view all saved requests
+4. Build chains programmatically or use saved requests
+
+**Example Chain:**
+
+```typescript
+import { getChainStorage, ChainExecutor } from 'han-prev-openapi';
+
+const chain: RequestChain = {
+  id: 'user-workflow',
+  name: 'User Registration & First Post',
+  requests: [
+    // Step 1: Create user
+    {
+      endpoint: '/users',
+      method: 'POST',
+      order: 1,
+      config: { body: { email: 'user@example.com' } },
+      variableExtraction: [
+        { name: 'userId', source: 'response.body', path: 'id' },
+      ],
+    },
+    // Step 2: Login
+    {
+      endpoint: '/auth/login',
+      method: 'POST',
+      order: 2,
+      config: { body: { email: 'user@example.com', password: 'pass123' } },
+      variableExtraction: [
+        { name: 'authToken', source: 'response.body', path: 'token' },
+      ],
+    },
+    // Step 3: Create post (using extracted token)
+    {
+      endpoint: '/posts',
+      method: 'POST',
+      order: 3,
+      config: { body: { title: 'My First Post' } },
+      dependencies: [
+        {
+          variableName: 'authToken',
+          target: 'header',
+          targetPath: 'headers.Authorization',
+          transform: 'Bearer ${value}',
+        },
+      ],
+    },
+  ],
+};
+
+const executor = new ChainExecutor('http://localhost:3000');
+const result = await executor.executeChain(chain);
+// Variables: { userId: 'user_123', authToken: 'eyJhbGc...', ... }
+```
+
+[**→ Full Request Chaining Documentation**](https://docs.han-framework.dev/openapi/request-chaining)
+
+---
+
+### Postman Collection Generator
+
+**Export your entire API to Postman with one click.** The Postman Generator converts your OpenAPI documentation into a ready-to-use Postman collection with examples, test scripts, and authentication already configured.
+
+#### Quick Example
+
+```typescript
+SwaggerModule.setup('/api-docs', app, document, {
+  developerExperience: {
+    postmanGenerator: {
+      enabled: true,
+      includeExamples: true,       // Include example responses
+      includeTests: true,          // Generate test scripts
+      includeAuth: true,           // Include auth configuration
+      environmentVariables: {
+        baseUrl: 'http://localhost:3000',
+        bearerToken: 'your-token-here',
+      },
+    },
+  },
+});
+```
+
+**Export from Swagger UI:**
+
+1. Visit your API docs (`http://localhost:3000/api-docs`)
+2. Click **"📮 Export to Postman"** in the toolbar
+3. Save the `.json` file
+4. Import into Postman: **File → Import**
+
+**What You Get:**
+
+✅ All endpoints organized by tags
+✅ Example request bodies with proper JSON
+✅ Example responses (200, 201, 400, 404, etc.)
+✅ Authentication configured (Bearer, API Key, etc.)
+✅ Test scripts for all requests
+✅ Environment variables ready to customize
+
+**Programmatic Export:**
+
+```typescript
+import { PostmanGenerator } from 'han-prev-openapi';
+
+const generator = new PostmanGenerator({
+  includeExamples: true,
+  includeTests: true,
+});
+
+const collection = generator.generateCollection(openApiDoc);
+generator.downloadCollection(collection, 'my-api.postman_collection.json');
+```
+
+[**→ Full Postman Generator Documentation**](https://docs.han-framework.dev/openapi/postman-generator)
+
+---
+
+### Code Examples Generator
+
+**Give developers copy-paste ready code in their favorite language.** The Code Examples Generator automatically creates working client code in 10+ programming languages directly from your OpenAPI specification.
+
+#### Quick Example
+
+```typescript
+SwaggerModule.setup('/api-docs', app, document, {
+  developerExperience: {
+    codeExamples: {
+      enabled: true,
+      languages: ['typescript', 'javascript', 'python', 'curl', 'go', 'java'],
+      includeComments: true,
+      includeErrorHandling: true,
+      includeTypeDefinitions: true,
+      framework: {
+        typescript: 'fetch',       // or 'axios', 'node-fetch'
+        python: 'requests',        // or 'httpx'
+      },
+    },
+  },
+});
+```
+
+**View in Swagger UI:**
+
+1. Click on any endpoint
+2. Click **"📋 Code Examples"**
+3. Select language from tabs
+4. Click **"📋 Copy"** to copy the code
+
+**Supported Languages:**
+
+- TypeScript (fetch, axios, node-fetch)
+- JavaScript (fetch, axios)
+- Python (requests, httpx)
+- Go
+- Java
+- C#
+- PHP
+- Ruby
+- Swift
+- curl
+
+**Example Output (TypeScript):**
+
+```typescript
+// POST /users
+async function postUsers() {
+  try {
+    const response = await fetch('http://localhost:3000/users', {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer YOUR_TOKEN"
+      },
+      body: JSON.stringify({
+        "email": "user@example.com",
+        "password": "secret123"
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
+```
+
+**Programmatic Generation:**
+
+```typescript
+import { CodeExamplesGenerator } from 'han-prev-openapi';
+
+const generator = new CodeExamplesGenerator({
+  languages: ['typescript', 'python', 'curl'],
+  includeComments: true,
+  includeErrorHandling: true,
+});
+
+const examples = generator.generateExamples({
+  endpoint: '/users',
+  method: 'POST',
+  parameters: { body: { email: 'user@example.com' } },
+  auth: { type: 'bearer', value: 'YOUR_TOKEN' },
+  baseUrl: 'http://localhost:3000',
+});
+
+examples.forEach((example) => {
+  console.log(`${example.language}:\n${example.code}`);
+});
+```
+
+[**→ Full Code Examples Documentation**](https://docs.han-framework.dev/openapi/code-examples)
+
+---
+
 ## Advanced Features
 
 ### Custom Schemas
